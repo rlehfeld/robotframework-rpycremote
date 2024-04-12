@@ -1,14 +1,7 @@
-import weakref
+import sys
 import rpyc
-import itertools
+from rpyc.utils.server import ThreadedServer
 
-import gc
-
-
-class Object:
-    pass
-
-server = None
 
 class Provider:
     the_real_answer_though = 43
@@ -16,68 +9,138 @@ class Provider:
     def __init__(self):
         pass
 
-    def get_answer(self):
+    def get_answer(self, b: int = 56):
+        print("from remote")
         return 42
 
     def get_question(self):
         return "what is the airspeed velocity of an unladen swallow?"
 
-    def stop_remote_server(self):
-        server.active = False
-        return "closed"
+
+class RPyCRobotFrameworkServer:
+    def __init__(self, library, host='127.0.0.1', port=18861, port_file=None,
+                 serve=True, allow_remote_stop=True):
+        """Configure and start-up remote server.
+
+        :param library:     Test library instance or module to host.
+        :param host:        Address to listen. Use ``'0.0.0.0'`` to listen
+                            to all available interfaces.
+        :param port:        Port to listen. Use ``0`` to select a free port
+                            automatically. Can be given as an integer or as
+                            a string.
+        :param port_file:   File to write the port that is used. ``None`` means
+                            no such file is written. Port file is created after
+                            the server is started and removed automatically
+                            after it has stopped.
+        :param allow_stop:  DEPRECATED since version 1.1. Use
+                            ``allow_remote_stop`` instead.
+        :param serve:       If ``True``, start the server automatically and
+                            wait for it to be stopped.
+        :param allow_remote_stop:  Allow/disallow stopping the server using
+                            ``Stop Remote Server`` keyword and
+                            ``stop_remote_server`` XML-RPC method.
+        """
+        class Service(rpyc.Service):
+            def __init__(self, library):
+                super().__init__()
+                self._library = library
+
+            if allow_remote_stop:
+                @staticmethod
+                def stop_remote_server():
+                    self._server.active = False
+
+            @property
+            def library(self):
+                return self._library
+
+            @property
+            def stdin(self):
+                return sys.stdin
+
+            def _rpyc_setattr(self, name, value):
+                if name in ('stdin', 'stdout', 'stderr'):
+                    return setattr(self, name, value)
+                return super()._rpyc_setattr(name, value)
+
+            @stdin.setter
+            def stdin(self, value):
+                print("std.setter", file=sys.__stdout__)
+                sys.stdin = value
+
+            @property
+            def stdout(self):
+                return sys.stdout
+
+            @stdout.setter
+            def stdout(self, value):
+                sys.stdout = value
+
+            @property
+            def stderr(self):
+                return sys.stderr
+
+            @stderr.setter
+            def stderr(self, value):
+                sys.stderr = value
+
+            def run_keyword(self, name, args=None, kwargs=None):
+                if args is None:
+                    args = []
+                if kwargs is None:
+                    kwargs = {}
+                return getattr(self._library, name)(*args, **kwargs)
+
+        self._port_file = port_file
+
+        library._rpyc_service = Service(library)
+
+        if allow_remote_stop:
+            library.stop_remote_server = (
+                library._rpyc_service.stop_remote_server
+            )
+
+        if not hasattr(library, 'run_keyword'):
+            library.run_keyword = library._rpyc_service.run_keyword
+
+        self._library = library
+
+        self._server = ThreadedServer(
+            library._rpyc_service,
+            hostname=host,
+            port=port,
+            auto_register=False,
+            protocol_config={
+                'allow_all_attr': True,
+                'allow_setattr': True,
+                'allow_delattr': True,
+                'exposed_prefix': '',
+            }
+        )
+
+        if serve:
+            self.serve()
+
+    def serve(self):
+        self._server.start()
+
+    @property
+    def server_address(self):
+        """Server address as a tuple ``(host, port)``."""
+        return self._server.host
+
+    @property
+    def server_port(self):
+        """Server port as an integer.
+
+        If the initial given port is 0, also this property returns 0 until
+        the server is activated.
+        """
+        return self._server.port
 
 
-class RobotFrameworkService(rpyc.Service):
-    def __init__(self, provider, *args, **kwargs):
-        self._service = provider
-        if isinstance(provider, type):
-            self._args = args
-            self._kwargs = kwargs
-        else:
-            if args or kwargs:
-                raise ValueError(
-                    ', '.join(
-                        itertools.chain(
-                            map(repr, args),
-                            map(lambda x: f"{x}={kwargs[x]!r}", kwargs),
-                        )
-                    )
-                    + ' given but provider is not a type'
-                )
-
-    def on_connect(self, conn):
-        # code that runs when a connection is created
-        # (to init the service, if needed)
-        pass
-
-    def on_disconnect(self, conn):
-        # code that runs after the connection has already closed
-        # (to finalize the service, if needed)
-        pass
-
-    def get_service(self):
-        if isinstance(self._service, type):
-            return self._service(*args, **kwargs)
-        else:
-            return self._service
-
-    
 if __name__ == "__main__":
-    from rpyc.utils.helpers import classpartial
-    from rpyc.utils.server import ThreadedServer
-    provider = Provider()
-    service = classpartial(
-        RobotFrameworkService, provider
-    )
-    server = ThreadedServer(
-        service,
+    RPyCRobotFrameworkServer(
+        Provider(),
         port=18861,
-        auto_register=False,
-        protocol_config={
-            'allow_all_attr': True,
-            'allow_setattr': True,
-            'allow_delattr': True,
-            'exposed_prefix': '',
-        }
     )
-    server.start()
