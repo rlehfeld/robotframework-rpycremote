@@ -146,6 +146,9 @@ class RPyCRobotRemoteClient:
             args.append('/')
         return args
 
+    # def get_keyword_types(self, name: str):
+    #     pass
+
     def get_keyword_tags(self, name: str):
         return getattr(self._keywords[name], 'robot_tags', ())
 
@@ -154,11 +157,30 @@ class RPyCRobotRemoteClient:
 
     def get_keyword_source(self, name: str):
         try:
-            filename = inspect.getsourcefile(self._keywords[name])
-            lineno = self._keywords[name].__code__.co_firstlineno
-            return f'{filename}:{lineno}'
+            filename = inspect.getsourcefile(
+                inspect.unwrap(self._keywords[name])
+            )
         except TypeError:
+            filename = ''
+
+        try:
+            lines, start_lineno = inspect.getsourcelines(
+                inspect.unwrap(self._keywords[name])
+            )
+        except (TypeError, OSError, IOError):
+            if filename:
+                return filename
             return None
+
+        lineno = None
+        for increment, line in enumerate(lines):
+            if line.strip().startswith('def '):
+                lineno = start_lineno + increment
+                break
+        if lineno is None:
+            lineno = start_lineno
+
+        return f'{filename}:{lineno}'
 
     @property
     def _keywords(self):
