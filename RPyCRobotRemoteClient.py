@@ -4,6 +4,7 @@ import inspect
 import rpyc
 from typing import Callable
 from contextlib import contextmanager
+from robot.api.deco import not_keyword
 
 
 @contextmanager
@@ -104,11 +105,8 @@ class RPyCRobotRemoteClient:
     def stop_remote_server(self):
         self._client.root.stop_remote_server()
 
+    @not_keyword
     def get_keyword_names(self):
-        return self._keywords
-
-    @property
-    def _keywords(self):
         if self._keywords_cache is None:
             attributes = [(name, getattr(self, name))
                           for name in dir(self) if name[0:1] != '_']
