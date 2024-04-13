@@ -1,11 +1,8 @@
-import inspect
+import sys
 import functools
 
-import sys
 import rpyc
-import weakref
 
-from io import StringIO
 from contextlib import contextmanager
 
 
@@ -15,36 +12,19 @@ def redirect(conn):
     Redirects the other party's ``stdout`` and ``stderr`` to
     StringIO and reformat the output
     """
-    if conn._stdout is None:
-        conn._stdout = StringIO()
-        conn._stderr = StringIO()
-
+    if not conn._redirected:
+        conn._redirected = True
         orig_stdout = conn.root.stdout
         orig_stderr = conn.root.stderr
 
         try:
-            conn.root.stdout = conn._stdout
-            conn.root.stderr = conn._stderr
+            conn.root.stdout = sys.stdout
+            conn.root.stderr = sys.stderr
             yield
         finally:
             conn.root.stdout = orig_stdout
             conn.root.stderr = orig_stderr
-            stdout = conn._stdout.getvalue()
-            stderr = conn._stderr.getvalue()
-            conn._stdout.close()
-            conn._stderr.close()
-            conn._stdout = None
-            conn._stderr = None
-            if stdout and stderr:
-                if not stderr.startswith(
-                        ('*TRACE*', '*DEBUG*', '*INFO*', '*HTML*',
-                         '*WARN*', '*ERROR*')):
-                    stderr = f'*INFO* {stderr!s}'
-            if stdout and not stdout.endswith('\n'):
-                stdout += '\n'
-            output = stdout + stderr
-            if output:
-                sys.stdout.write(output)
+            conn._redirected = False
     else:
         yield
 
@@ -63,27 +43,12 @@ def redirect_output(func):
     return sync_request
 
 
-class ConnectionKeeper:
-    _finalizer = dict()
-
-    @classmethod
-    def keep(cls, connection):
-        keeper = cls(connection)
-        ref = weakref.ref(connection, keeper)
-        keeper._ref = ref
-        cls._finalizer[keeper] = 1
-
-    def __init__(self, connection):
-        self._client = connection
-
-    def __call__(self):
-        print("helloe")
-        self._finalizer.pop(self, None)
-
-
 class RPyCRemote:
-    def __new__(cls, peer='localhost', port=18861):
-        client = rpyc.connect(
+    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+
+    def __init__(self, peer='localhost', port=18861):
+        self._dircache = None
+        self._client = rpyc.connect(
             peer,
             port,
             config={
@@ -96,19 +61,48 @@ class RPyCRemote:
 
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
-        client._stdout = None
-        client.sync_request = redirect_output(client.sync_request)
+        self._client._redirected = False
+        self._client.sync_request = redirect_output(self._client.sync_request)
 
-        # finalize conection
-        ConnectionKeeper.keep(client)
-        return client.root.library
+    def __dir__(self):
+        if self._dircache is None:
+            dict = super().__dir__()
+            for name in dir(self._client.root.library):
+                if name[0:1] != '_':
+                    obj = getattr(self._client.root.library, name)
+                    if callable(obj):
+                        dict.append(name)
+            dict.sort()
+            self._dircache = dict
+        return self._dircache
+
+    def __getattr__(self, name):
+        if name[0:1] != '_':
+            try:
+                obj = getattr(self._client.root.library, name)
+            except AttributeError:
+                pass
+            else:
+                if callable(obj):
+                    return obj
+        exception = AttributeError(
+            f'{type(self).__name__!r} object has no attribute {name!r}'
+        )
+        raise exception
+
+    def stop_remote_server(self):
+        self._client.root.stop_remote_server()
+
+    def run_keyword(self, name, args=None, kwargs=None):
+        return self._client.root.run_keyword(name, args, kwargs)
 
 
-conn = RPyCRemote()
-print(conn.get_answer())
-print(dir(conn))
+if __name__ == "__main__":
+    conn = RPyCRemote()
+    print(conn.get_answer())
+    print(dir(conn))
 
-print(conn.run_keyword('get_answer'))
+    print(conn.run_keyword('get_answer'))
 
-print(inspect.signature(conn.get_answer))
-conn.stop_remote_server()
+    print(conn.the_real_answer_though)
+    conn.stop_remote_server()

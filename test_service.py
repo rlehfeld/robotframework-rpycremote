@@ -3,21 +3,7 @@ import rpyc
 from rpyc.utils.server import ThreadedServer
 
 
-class Provider:
-    the_real_answer_though = 43
-
-    def __init__(self):
-        pass
-
-    def get_answer(self, b: int = 56):
-        print("from remote")
-        return 42
-
-    def get_question(self):
-        return "what is the airspeed velocity of an unladen swallow?"
-
-
-class RPyCRobotFrameworkServer:
+class RPyCRobotRemoteServer:
     def __init__(self, library, host='127.0.0.1', port=18861, port_file=None,
                  serve=True, allow_remote_stop=True):
         """Configure and start-up remote server.
@@ -93,20 +79,8 @@ class RPyCRobotFrameworkServer:
 
         self._port_file = port_file
 
-        library._rpyc_service = Service(library)
-
-        if allow_remote_stop:
-            library.stop_remote_server = (
-                library._rpyc_service.stop_remote_server
-            )
-
-        if not hasattr(library, 'run_keyword'):
-            library.run_keyword = library._rpyc_service.run_keyword
-
-        self._library = library
-
         self._server = ThreadedServer(
-            library._rpyc_service,
+            Service(library),
             hostname=host,
             port=port,
             auto_register=False,
@@ -140,7 +114,20 @@ class RPyCRobotFrameworkServer:
 
 
 if __name__ == "__main__":
-    RPyCRobotFrameworkServer(
+    class Provider:
+        the_real_answer_though = 43
+
+        def __init__(self):
+            pass
+
+        def get_answer(self, b: int = 56):
+            print("from remote")
+            return 42
+
+        def get_question(self):
+            return "what is the airspeed velocity of an unladen swallow?"
+
+    RPyCRobotRemoteServer(
         Provider(),
         port=18861,
     )
