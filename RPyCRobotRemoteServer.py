@@ -1,6 +1,6 @@
 import sys
 import rpyc
-from typing import Optional, List, Dict, IO
+from typing import IO
 from rpyc.utils.server import ThreadedServer
 
 
@@ -71,15 +71,6 @@ class RPyCRobotRemoteServer:
                     return setattr(self, name, value)
                 return super()._rpyc_setattr(name, value)
 
-            def run_keyword(self, name: str,
-                            args: Optional[List] = None,
-                            kwargs: Optional[Dict] = None):
-                if args is None:
-                    args = []
-                if kwargs is None:
-                    kwargs = {}
-                return getattr(self._library, name)(*args, **kwargs)
-
         self._port_file = port_file
 
         self._server = ThreadedServer(
@@ -123,9 +114,12 @@ if __name__ == "__main__":
         def __init__(self):
             pass
 
-        def get_answer(self, b: int = 56):
+        def get_answer(self, a=4,  /, b: int = 56, *, c: int = 59):
             print(f'from remote {b}')
             return 42
+
+        def raise_error(self):
+            raise RuntimeError('error')
 
         def get_question(self):
             return "what is the airspeed velocity of an unladen swallow?"
