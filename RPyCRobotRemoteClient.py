@@ -121,16 +121,30 @@ class RPyCRobotRemoteClient:
             signature = inspect.signature(self._keywords[name])
         except ValueError:  # Can occur with C functions (incl. many builtins).
             return ['*varargs']
-        print(signature)
         parameters = signature.parameters.values()
-        print([p.kind for p in parameters])
-        res = [
-            p.name
-            if (p.default == inspect.Parameter.empty) else (p.name, p.default)
-            for p in parameters
-        ]
-        print(res)
-        return res
+        args = []
+        prev_kind = None
+        for p in parameters:
+            kind = p.kind
+            if prev_kind != kind:
+                if prev_kind == inspect.Parameter.POSITIONAL_ONLY:
+                    args.append('/')
+                if (prev_kind != inspect.Parameter.VAR_POSITIONAL and
+                        kind == inspect.Parameter.KEYWORD_ONLY):
+                    args.append('*')
+            name = p.name
+            if kind == inspect.Parameter.VAR_POSITIONAL:
+                name = f'*{name}'
+            elif kind == inspect.Parameter.VAR_KEYWORD:
+                name = f'**{name}'
+            if p.default == inspect.Parameter.empty:
+                args.append(name)
+            else:
+                args.append((name, p.default))
+            prev_kind = kind
+        if prev_kind == inspect.Parameter.POSITIONAL_ONLY:
+            args.append('/')
+        return args
 
     def get_keyword_tags(self, name: str):
         return getattr(self._keywords[name], 'robot_tags', ())

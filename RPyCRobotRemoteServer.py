@@ -114,7 +114,7 @@ if __name__ == "__main__":
         def __init__(self):
             pass
 
-        def get_answer(self, a=4,  /, b: int = 56, *, c: int = 59):
+        def get_answer(self, a=4,  /, b: int = 56, *args, c: int = 59):
             print(f'from remote {b}')
             return 42
 
