@@ -2,7 +2,7 @@ import sys
 import functools
 import inspect
 import rpyc
-from typing import Optional, List, Dict, Callable
+from typing import Callable
 from contextlib import contextmanager
 
 
@@ -62,7 +62,7 @@ class RPyCRobotRemoteClient:
             }
         )
 
-        for name in ('ROBOT_LIBRARY_DOC_FORMAT'):
+        for name in ('ROBOT_LIBRARY_DOC_FORMAT', '__doc__'):
             try:
                 value = getattr(self._client.root.library, name)
             except AttributeError:
@@ -105,94 +105,18 @@ class RPyCRobotRemoteClient:
         self._client.root.stop_remote_server()
 
     def get_keyword_names(self):
-        return self._keywords.keys()
-
-    def run_keyword(self, name: str,
-                    args: Optional[List] = None,
-                    kwargs: Optional[Dict] = None):
-        if args is None:
-            args = []
-        if kwargs is None:
-            kwargs = {}
-        return getattr(self, name)(*args, **kwargs)
-
-    def get_keyword_arguments(self, name: str):
-        try:
-            signature = inspect.signature(self._keywords[name])
-        except ValueError:  # Can occur with C functions (incl. many builtins).
-            return ['*varargs']
-        parameters = signature.parameters.values()
-        args = []
-        prev_kind = None
-        for p in parameters:
-            kind = p.kind
-            if prev_kind != kind:
-                if prev_kind == inspect.Parameter.POSITIONAL_ONLY:
-                    args.append('/')
-                if (prev_kind != inspect.Parameter.VAR_POSITIONAL and
-                        kind == inspect.Parameter.KEYWORD_ONLY):
-                    args.append('*')
-            name = p.name
-            if kind == inspect.Parameter.VAR_POSITIONAL:
-                name = f'*{name}'
-            elif kind == inspect.Parameter.VAR_KEYWORD:
-                name = f'**{name}'
-            if p.default == inspect.Parameter.empty:
-                args.append(name)
-            else:
-                args.append((name, p.default))
-            prev_kind = kind
-        if prev_kind == inspect.Parameter.POSITIONAL_ONLY:
-            args.append('/')
-        return args
-
-    # def get_keyword_types(self, name: str):
-    #     pass
-
-    def get_keyword_tags(self, name: str):
-        return getattr(self._keywords[name], 'robot_tags', ())
-
-    def get_keyword_documentation(self, name: str):
-        return inspect.getdoc(self._keywords[name]) or ''
-
-    def get_keyword_source(self, name: str):
-        try:
-            filename = inspect.getsourcefile(
-                inspect.unwrap(self._keywords[name])
-            )
-        except TypeError:
-            filename = ''
-
-        try:
-            lines, start_lineno = inspect.getsourcelines(
-                inspect.unwrap(self._keywords[name])
-            )
-        except (TypeError, OSError, IOError):
-            if filename:
-                return filename
-            return None
-
-        lineno = None
-        for increment, line in enumerate(lines):
-            if line.strip().startswith('def '):
-                lineno = start_lineno + increment
-                break
-        if lineno is None:
-            lineno = start_lineno
-
-        return f'{filename}:{lineno}'
+        return self._keywords
 
     @property
     def _keywords(self):
         if self._keywords_cache is None:
             attributes = [(name, getattr(self, name))
                           for name in dir(self) if name[0:1] != '_']
-            self._keywords_cache = {
-                getattr(value, 'robot_name', name): value
-                for name, value in attributes
+            self._keywords_cache = (
+                name for name, value in attributes
                 if (callable(value) and
                     not getattr(value, 'robot_not_keyword', False))
-            }
+            )
         return self._keywords_cache
 
 
