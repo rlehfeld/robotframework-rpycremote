@@ -99,10 +99,10 @@ class RPyCRemote:
 
 if __name__ == "__main__":
     conn = RPyCRemote()
+    print(conn.get_answer)
     print(conn.get_answer())
     print(dir(conn))
 
     print(conn.run_keyword('get_answer'))
 
-    print(conn.the_real_answer_though)
     conn.stop_remote_server()
