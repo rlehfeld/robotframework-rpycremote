@@ -1,5 +1,6 @@
 import sys
 import rpyc
+from typing import Optional, List, Dict, IO
 from rpyc.utils.server import ThreadedServer
 
 
@@ -44,13 +45,8 @@ class RPyCRobotRemoteServer:
             def stdin(self):
                 return sys.stdin
 
-            def _rpyc_setattr(self, name, value):
-                if name in ('stdin', 'stdout', 'stderr'):
-                    return setattr(self, name, value)
-                return super()._rpyc_setattr(name, value)
-
             @stdin.setter
-            def stdin(self, value):
+            def stdin(self, value: IO):
                 print("std.setter", file=sys.__stdout__)
                 sys.stdin = value
 
@@ -59,7 +55,7 @@ class RPyCRobotRemoteServer:
                 return sys.stdout
 
             @stdout.setter
-            def stdout(self, value):
+            def stdout(self, value: IO):
                 sys.stdout = value
 
             @property
@@ -67,10 +63,17 @@ class RPyCRobotRemoteServer:
                 return sys.stderr
 
             @stderr.setter
-            def stderr(self, value):
+            def stderr(self, value: IO):
                 sys.stderr = value
 
-            def run_keyword(self, name, args=None, kwargs=None):
+            def _rpyc_setattr(self, name: str, value):
+                if name in ('stdin', 'stdout', 'stderr'):
+                    return setattr(self, name, value)
+                return super()._rpyc_setattr(name, value)
+
+            def run_keyword(self, name: str,
+                            args: Optional[List] = None,
+                            kwargs: Optional[Dict] = None):
                 if args is None:
                     args = []
                 if kwargs is None:
@@ -121,7 +124,7 @@ if __name__ == "__main__":
             pass
 
         def get_answer(self, b: int = 56):
-            print("from remote")
+            print(f'from remote {b}')
             return 42
 
         def get_question(self):

@@ -1,6 +1,6 @@
 import sys
 import functools
-
+from typing import Optional, List, Dict, Callable
 import rpyc
 
 from contextlib import contextmanager
@@ -29,7 +29,7 @@ def redirect(conn):
         yield
 
 
-def redirect_output(func):
+def redirect_output(func: Callable):
     this = getattr(func, '__self__', None)
     function = getattr(func, '__func__', func)
 
@@ -43,7 +43,7 @@ def redirect_output(func):
     return sync_request
 
 
-class RPyCRemote:
+class RPyCRobotRemoteClient:
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
 
     def __init__(self, peer='localhost', port=18861):
@@ -76,7 +76,7 @@ class RPyCRemote:
             self._dircache = dict
         return self._dircache
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         if name[0:1] != '_':
             try:
                 obj = getattr(self._client.root.library, name)
@@ -93,16 +93,21 @@ class RPyCRemote:
     def stop_remote_server(self):
         self._client.root.stop_remote_server()
 
-    def run_keyword(self, name, args=None, kwargs=None):
+    def run_keyword(self, name: str,
+                    args: Optional[List] = None,
+                    kwargs: Optional[Dict] = None):
         return self._client.root.run_keyword(name, args, kwargs)
 
 
 if __name__ == "__main__":
-    conn = RPyCRemote()
+    import inspect
+
+    conn = RPyCRobotRemoteClient()
     print(conn.get_answer)
     print(conn.get_answer())
     print(dir(conn))
 
-    print(conn.run_keyword('get_answer'))
+    print(inspect.getmembers(conn, callable))
+    print(conn.run_keyword('get_answer', [], {'b': 57}))
 
     conn.stop_remote_server()
