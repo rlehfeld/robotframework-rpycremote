@@ -78,14 +78,14 @@ class RPyCRobotRemoteClient:
 
     def __dir__(self):
         if self._dir_cache is None:
-            dict = super().__dir__()
+            thedir = super().__dir__()
             for name in dir(self._client.root.library):
                 if name[0:1] != '_':
                     obj = getattr(self._client.root.library, name)
                     if callable(obj):
-                        dict.append(name)
-            dict.sort()
-            self._dir_cache = dict
+                        thedir.append(name)
+            thedir.sort()
+            self._dir_cache = thedir
         return self._dir_cache
 
     def __getattr__(self, name: str):
@@ -108,12 +108,24 @@ class RPyCRobotRemoteClient:
     @not_keyword
     def get_keyword_names(self):
         if self._keywords_cache is None:
+            get_keyword_names = getattr(self._client.root.library, 'get_keyword_names', None)
+            if get_keyword_names:
+                base = set(get_keyword_names())
+                getdir = super().__dir__
+            else:
+                base = set()
+                getdir = self.__dir__
+
             attributes = [(name, getattr(self, name))
-                          for name in dir(self) if name[0:1] != '_']
-            self._keywords_cache = (
-                name for name, value in attributes
-                if (callable(value) and
-                    not getattr(value, 'robot_not_keyword', False))
+                          for name in getdir() if name[0:1] != '_']
+            self._keywords_cache = tuple(
+                sorted(
+                    base | {
+                        name for name, value in attributes
+                        if (callable(value) and
+                            not getattr(value, 'robot_not_keyword', False))
+                    }
+                )
             )
         return self._keywords_cache
 
@@ -125,6 +137,5 @@ if __name__ == "__main__":
     print(dir(conn))
 
     print(inspect.getmembers(conn, callable))
-    print(conn.run_keyword('get_answer', [], {'b': 57}))
 
     conn.stop_remote_server()

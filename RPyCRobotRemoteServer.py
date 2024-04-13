@@ -71,6 +71,7 @@ class RPyCRobotRemoteServer:
                     return setattr(self, name, value)
                 return super()._rpyc_setattr(name, value)
 
+        # TODO: write the real port to port_file
         self._port_file = port_file
 
         self._server = ThreadedServer(
