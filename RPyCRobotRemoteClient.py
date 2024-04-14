@@ -10,8 +10,7 @@ from robot.api.deco import not_keyword
 @contextmanager
 def redirect(conn):
     """
-    Redirects the other party's ``stdout`` and ``stderr`` to
-    StringIO and reformat the output
+    Redirects the other party's ``stdout`` and ``stderr`` to local
     """
     if not conn._redirected:
         conn._redirected = True
@@ -108,7 +107,11 @@ class RPyCRobotRemoteClient:
     @not_keyword
     def get_keyword_names(self):
         if self._keywords_cache is None:
-            get_keyword_names = getattr(self._client.root.library, 'get_keyword_names', None)
+            get_keyword_names = getattr(
+                self._client.root.library,
+                'get_keyword_names',
+                None
+            )
             if get_keyword_names:
                 base = set(get_keyword_names())
                 getdir = super().__dir__
