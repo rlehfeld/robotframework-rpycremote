@@ -96,10 +96,9 @@ class RPyCRobotRemoteClient:
             else:
                 if callable(obj):
                     return obj
-        exception = AttributeError(
+        raise AttributeError(
             f'{type(self).__name__!r} object has no attribute {name!r}'
         )
-        raise exception
 
     def stop_remote_server(self):
         self._client.root.stop_remote_server()
