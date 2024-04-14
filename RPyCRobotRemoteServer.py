@@ -19,13 +19,11 @@ class RPyCRobotRemoteServer:
                             no such file is written. Port file is created after
                             the server is started and removed automatically
                             after it has stopped.
-        :param allow_stop:  DEPRECATED since version 1.1. Use
-                            ``allow_remote_stop`` instead.
         :param serve:       If ``True``, start the server automatically and
                             wait for it to be stopped.
         :param allow_remote_stop:  Allow/disallow stopping the server using
                             ``Stop Remote Server`` keyword and
-                            ``stop_remote_server`` XML-RPC method.
+                            ``stop_remote_server`` method.
         """
         class Service(rpyc.Service):
             def __init__(self, library):
