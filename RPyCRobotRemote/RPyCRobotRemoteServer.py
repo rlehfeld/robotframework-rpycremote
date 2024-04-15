@@ -1,7 +1,8 @@
 import sys
 import rpyc
 import pathlib
-from typing import IO, Optional
+import io
+from typing import TextIO, Optional
 from rpyc.utils.server import ThreadedServer
 
 
@@ -10,7 +11,7 @@ class RPyCRobotRemoteServer:
                  library,
                  host: Optional[str] = 'localhost',
                  port: int = 18861,
-                 port_file: Optional[str | pathlib.Path | IO] = None,
+                 port_file: Optional[str | pathlib.Path | TextIO] = None,
                  serve: bool = True,
                  allow_remote_stop: bool = True,
                  ipv6: bool = True):
@@ -53,7 +54,7 @@ class RPyCRobotRemoteServer:
                 return sys.stdin
 
             @stdin.setter
-            def stdin(self, value: IO):
+            def stdin(self, value: TextIO):
                 sys.stdin = value
 
             @property
@@ -61,7 +62,7 @@ class RPyCRobotRemoteServer:
                 return sys.stdout
 
             @stdout.setter
-            def stdout(self, value: IO):
+            def stdout(self, value: TextIO):
                 sys.stdout = value
 
             @property
@@ -69,16 +70,13 @@ class RPyCRobotRemoteServer:
                 return sys.stderr
 
             @stderr.setter
-            def stderr(self, value: IO):
+            def stderr(self, value: TextIO):
                 sys.stderr = value
 
             def _rpyc_setattr(self, name: str, value):
                 if name in ('stdin', 'stdout', 'stderr'):
                     return setattr(self, name, value)
                 return super()._rpyc_setattr(name, value)
-
-        # TODO: write the real port to port_file
-        self._port_file = port_file
 
         self._server = ThreadedServer(
             Service(library),
@@ -93,6 +91,13 @@ class RPyCRobotRemoteServer:
                 'exposed_prefix': '',
             }
         )
+
+        if port_file:
+            if isinstance(port_file, io.TextIOBase):
+                print(self.server_port, file=port_file)
+            else:
+                with pathlib.Path(port_file).open('w', ) as f:
+                    print(self.server_port, file=f)
 
         if serve:
             self.serve()

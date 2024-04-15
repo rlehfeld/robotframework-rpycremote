@@ -1,3 +1,4 @@
+import sys
 from RPyCRobotRemote import RPyCRobotRemoteServer
 from robot.api.deco import keyword, not_keyword
 
@@ -31,8 +32,7 @@ server = RPyCRobotRemoteServer(
     Provider(),
     serve=False,
     # port=0,
+    port_file=sys.stdout,
 )
 
-print(server.server_port)
-print(server.server_address)
 server.serve()
