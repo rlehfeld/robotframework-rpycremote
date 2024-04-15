@@ -27,6 +27,32 @@ class Provider:
     def get_question(self):
         return "what is the airspeed velocity of an unladen swallow?"
 
+    def dummy_test(self):
+        class Dummy:
+            def __init__(self):
+                self._value = 1
+                self.value2 = 5
+
+            @property
+            def value(self):
+                print('called value getter')
+                return self._value
+
+            @value.setter
+            def value(self, v):
+                print('called value setter')
+                self._value = v
+
+            def __call__(self, *args, **kwargs):
+                print(f'called __call__({args}, {kwargs})')
+                return '__call__'
+
+            def method(self, *args, **kwargs):
+                print(f'called method({args}, {kwargs})')
+                return 'method'
+
+        return Dummy()
+
 
 server = RPyCRobotRemoteServer(
     Provider(),
