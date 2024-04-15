@@ -78,6 +78,10 @@ class RPyCRobotRemoteServer:
                     return setattr(self, name, value)
                 return super()._rpyc_setattr(name, value)
 
+        self._port_file = (
+            port_file if port_file is None or isinstance(port_file, io.TextIOBase)
+            else pathlib.Path(port_file).absolute()
+        )
         self._server = ThreadedServer(
             Service(library),
             hostname=host,
@@ -92,18 +96,19 @@ class RPyCRobotRemoteServer:
             }
         )
 
-        if port_file:
-            if isinstance(port_file, io.TextIOBase):
-                print(self.server_port, file=port_file)
-            else:
-                with pathlib.Path(port_file).open('w', ) as f:
-                    print(self.server_port, file=f)
-
         if serve:
             self.serve()
 
     def serve(self):
+        if self._port_file:
+            if isinstance(self._port_file, io.TextIOBase):
+                print(self.server_port, file=self._port_file)
+            else:
+                with self._port_file.open('w') as f:
+                    print(self.server_port, file=f)
         self._server.start()
+        if self._port_file and not isinstance(self._port_file, io.TextIOBase):
+            self._port_file.unlink()
 
     @property
     def server_address(self):
