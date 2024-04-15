@@ -45,7 +45,6 @@ class RPyCRobotRemoteServer:
 
             @stdin.setter
             def stdin(self, value: IO):
-                print("std.setter", file=sys.__stdout__)
                 sys.stdin = value
 
             @property

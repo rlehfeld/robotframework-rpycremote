@@ -12,8 +12,8 @@ def redirect(conn):
     """
     Redirects the other party's ``stdout`` and ``stderr`` to local
     """
-    if not conn._redirected:
-        conn._redirected = True
+    alreadyredirected, conn._redirected = conn._redirected, True
+    if not alreadyredirected:
         orig_stdout = conn.root.stdout
         orig_stderr = conn.root.stderr
 
