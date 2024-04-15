@@ -1,6 +1,5 @@
 import sys
 import functools
-import inspect
 import rpyc
 from typing import Callable
 from contextlib import contextmanager
@@ -130,14 +129,3 @@ class RPyCRobotRemoteClient:
                 )
             )
         return self._keywords_cache
-
-
-if __name__ == "__main__":
-    conn = RPyCRobotRemoteClient()
-    print(conn.get_answer)
-    print(conn.get_answer())
-    print(dir(conn))
-
-    print(inspect.getmembers(conn, callable))
-
-    conn.stop_remote_server()
