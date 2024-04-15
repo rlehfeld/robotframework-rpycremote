@@ -14,4 +14,9 @@ Test Remote
     Log    ${obj.value2}
     VAR    ${obj.value2}     10
 
-    #RpyCTest.Stop Remote Server
+
+Test Exception
+    Run Keyword And Expect Error    *    RPyCTest.Raise Error
+
+Test Stop Server
+    RPyCTest.Stop Remote Server
