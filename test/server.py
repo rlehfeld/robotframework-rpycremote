@@ -27,7 +27,12 @@ class Provider:
         return "what is the airspeed velocity of an unladen swallow?"
 
 
-RPyCRobotRemoteServer(
+server = RPyCRobotRemoteServer(
     Provider(),
-    port=18861,
+    serve=False,
+    # port=0,
 )
+
+print(server.server_port)
+print(server.server_address)
+server.serve()

@@ -21,8 +21,11 @@ def redirect(conn):
             conn.root.stderr = sys.stderr
             yield
         finally:
-            conn.root.stdout = orig_stdout
-            conn.root.stderr = orig_stderr
+            try:
+                conn.root.stdout = orig_stdout
+                conn.root.stderr = orig_stderr
+            except EOFError:
+                pass
             conn._redirected = False
     else:
         yield
@@ -47,7 +50,10 @@ class RPyCRobotRemoteClient:
 
     __slot__ = ()
 
-    def __init__(self, peer: str = 'localhost', port: int = 18861):
+    def __init__(self,
+                 peer: str = 'localhost',
+                 port: int = 18861,
+                 ipv6: bool = True):
         self._dir_cache = None
         self._keywords_cache = None
         self._client = rpyc.connect(
@@ -58,7 +64,9 @@ class RPyCRobotRemoteClient:
                 'allow_setattr': True,
                 'allow_delattr': True,
                 'exposed_prefix': '',
-            }
+            },
+            ipv6=ipv6,
+            keepalive=True
         )
 
         for name in ('ROBOT_LIBRARY_DOC_FORMAT', '__doc__'):

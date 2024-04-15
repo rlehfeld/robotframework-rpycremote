@@ -1,16 +1,23 @@
 import sys
 import rpyc
-from typing import IO
+import pathlib
+from typing import IO, Optional
 from rpyc.utils.server import ThreadedServer
 
 
 class RPyCRobotRemoteServer:
-    def __init__(self, library, host='127.0.0.1', port=18861, port_file=None,
-                 serve=True, allow_remote_stop=True):
+    def __init__(self,
+                 library,
+                 host: Optional[str] = 'localhost',
+                 port: int = 18861,
+                 port_file: Optional[str | pathlib.Path | IO] = None,
+                 serve: bool = True,
+                 allow_remote_stop: bool = True,
+                 ipv6: bool = True):
         """Configure and start-up remote server.
 
         :param library:     Test library instance or module to host.
-        :param host:        Address to listen. Use ``'0.0.0.0'`` to listen
+        :param host:        Address to listen. Use None to listen
                             to all available interfaces.
         :param port:        Port to listen. Use ``0`` to select a free port
                             automatically. Can be given as an integer or as
@@ -24,6 +31,8 @@ class RPyCRobotRemoteServer:
         :param allow_remote_stop:  Allow/disallow stopping the server using
                             ``Stop Remote Server`` keyword and
                             ``stop_remote_server`` method.
+        :param ipv6         If ``True``, allow IPv6 connections,
+                            if ``False``, use IPv4 only connections.
         """
         class Service(rpyc.Service):
             def __init__(self, library):
@@ -75,6 +84,7 @@ class RPyCRobotRemoteServer:
             Service(library),
             hostname=host,
             port=port,
+            ipv6=ipv6,
             auto_register=False,
             protocol_config={
                 'allow_all_attr': True,
