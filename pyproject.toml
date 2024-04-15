@@ -1,0 +1,38 @@
+[build-system]
+requires = ['setuptools>=45', 'setuptools_scm[toml]>=6.2']
+
+[project]
+name = 'robotframework-rpycremote'
+authors = [
+    {name = 'René Lehfeld', email = '54720674+rlehfeld@users.noreply.github.com'},
+]
+description = 'Robot Framework Remote Library based on RPyC'
+requires-python = '>=3.7'
+license = {text = 'MIT'}
+keywords = ['robotframework', 'robot-framework', 'rpyc']
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'Environment :: Other Environment',
+    'Intended Audience :: Developers',
+    'Operating System :: OS Independent',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+dependencies = [
+  'robotframework>=5.0.1',
+  'rpyc>=6.0.0',
+]
+dynamic = ['version', 'readme']
+
+[project.urls]
+'Homepage' = 'https://github.com/rlehfeld/robotframework-rpycremote'
+'Bug Reports' = 'https://github.com/rlehfeld/robotframework-rpycremote/issues'
+'Source' = 'https://github.com/rlehfeld/robotframework-rpycremote/'
+
+[tool.setuptools]
+packages = ['RPyCRobotRemote']
+
+[tool.setuptools.dynamic]
+readme = {file = ['README.rst']}
+
+[tool.setuptools_scm]
+write_to = 'RPyCRobotRemote/_version.py'
