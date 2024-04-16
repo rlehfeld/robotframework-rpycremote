@@ -1,5 +1,5 @@
 *** Settings ***
-Library    RPyCRobotRemote.RPyCRobotRemoteClient    localhost    18861    WITH NAME    RpyCTest
+Library    RPyCRobotRemote.RPyCRobotRemoteClient    localhost    18861    WITH NAME    RPyCTest
 
 *** Test Cases ***
 Test Remote
