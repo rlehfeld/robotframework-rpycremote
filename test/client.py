@@ -1,7 +1,7 @@
 import inspect
-from RPyCRobotRemote import RPyCRobotRemoteClient
+import RPyCRobotRemote
 
-conn = RPyCRobotRemoteClient()
+conn = RPyCRobotRemote.Client()
 print(conn.get_answer)
 print(conn.get_answer())
 print(dir(conn))

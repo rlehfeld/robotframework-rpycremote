@@ -1,5 +1,5 @@
 import sys
-from RPyCRobotRemote import RPyCRobotRemoteServer
+import RPyCRobotRemote
 from robot.api.deco import keyword, not_keyword
 
 
@@ -54,7 +54,7 @@ class Provider:
         return Dummy()
 
 
-server = RPyCRobotRemoteServer(
+server = RPyCRobotRemote.Server(
     Provider(),
     serve=False,
     # port=0,

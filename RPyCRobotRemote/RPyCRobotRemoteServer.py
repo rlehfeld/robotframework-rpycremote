@@ -79,7 +79,8 @@ class RPyCRobotRemoteServer:
                 return super()._rpyc_setattr(name, value)
 
         self._port_file = (
-            port_file if port_file is None or isinstance(port_file, io.TextIOBase)
+            port_file if (
+                port_file is None or isinstance(port_file, io.TextIOBase))
             else pathlib.Path(port_file).absolute()
         )
         self._server = ThreadedServer(
