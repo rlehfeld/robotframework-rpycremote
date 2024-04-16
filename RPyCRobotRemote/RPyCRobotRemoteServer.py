@@ -14,7 +14,7 @@ class RPyCRobotRemoteServer:
                  port_file: Optional[str | pathlib.Path | TextIO] = None,
                  serve: bool = True,
                  allow_remote_stop: bool = True,
-                 ipv6: bool = True):
+                 ipv6: bool = False):
         """Configure and start-up remote server.
 
         :param library:     Test library instance or module to host.

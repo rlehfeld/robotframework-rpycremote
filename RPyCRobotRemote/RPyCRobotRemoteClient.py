@@ -53,7 +53,7 @@ class RPyCRobotRemoteClient:
     def __init__(self,
                  peer: str = 'localhost',
                  port: int = 18861,
-                 ipv6: bool = True):
+                 ipv6: bool = False):
         self._dir_cache = None
         self._keywords_cache = None
         self._client = rpyc.connect(
