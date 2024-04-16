@@ -43,7 +43,7 @@ class RPyCRobotRemoteServer:
             if allow_remote_stop:
                 @staticmethod
                 def stop_remote_server():
-                    self._server.active = False
+                    self.stop()
 
             @property
             def library(self):
@@ -99,6 +99,9 @@ class RPyCRobotRemoteServer:
 
         if serve:
             self.serve()
+
+    def stop(self):
+        self._server.active = False
 
     def serve(self):
         if self._port_file:
