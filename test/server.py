@@ -1,4 +1,7 @@
 import sys
+import yaml
+import logging
+import logging.config
 import RPyCRobotRemote
 from robot.api.deco import keyword, not_keyword
 
@@ -53,6 +56,27 @@ class Provider:
 
         return Dummy()
 
+
+logconfig = """
+version: 1
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+    stream: ext://__main__.stderr
+root:
+  level: DEBUG
+  handlers: [console]
+"""
+
+logging.config.dictConfig(
+    yaml.load(logconfig,
+              Loader=yaml.SafeLoader),
+)
 
 server = RPyCRobotRemote.Server(
     Provider(),
