@@ -97,10 +97,10 @@ class RPyCRobotRemoteClient:
         if self._dir_cache is None:
             thedir = super().__dir__()
             for name in dir(self._client.root.library):
-                if name[0:1] != '_':
-                    obj = getattr(self._client.root.library, name)
-                    if name.startswith('ROBOT_LIBRARY_') or callable(obj):
-                        thedir.append(name)
+                if name[0:1] != '_' and (
+                        name.startswith('ROBOT_LIBRARY_') or
+                        callable(getattr(self._client.root.library, name))):
+                    thedir.append(name)
             thedir.sort()
             self._dir_cache = thedir
         return self._dir_cache
