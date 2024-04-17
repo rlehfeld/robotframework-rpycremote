@@ -1,5 +1,6 @@
 import sys
 import functools
+import logging
 import rpyc
 from typing import Callable
 from contextlib import contextmanager
@@ -55,7 +56,8 @@ class RPyCRobotRemoteClient:
                  peer: str = 'localhost',
                  port: int = 18861,
                  ipv6: bool = False,
-                 timeout=None):
+                 timeout=None,
+                 logger=None):
         self._dir_cache = None
         self._keywords_cache = None
 
@@ -65,6 +67,9 @@ class RPyCRobotRemoteClient:
                 result_format='number'
             )
 
+        if logger is None:
+            logger = logging.getLogger('RPyCRobotRemote.Client')
+
         self._client = rpyc.connect(
             peer,
             port,
@@ -73,6 +78,7 @@ class RPyCRobotRemoteClient:
                 'allow_setattr': True,
                 'allow_delattr': True,
                 'exposed_prefix': '',
+                'logger': logger,
             } | ({} if timeout is None else {'sync_request_timeout': timeout}),
             ipv6=ipv6,
             keepalive=True,
