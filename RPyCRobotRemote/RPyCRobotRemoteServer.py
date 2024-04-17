@@ -4,6 +4,7 @@ import pathlib
 import logging
 import io
 from typing import TextIO, Optional
+from robot.libraries.DateTime import convert_time
 from rpyc.utils.server import ThreadedServer
 
 
@@ -16,6 +17,7 @@ class RPyCRobotRemoteServer:
                  serve: bool = True,
                  allow_remote_stop: bool = True,
                  ipv6: bool = False,
+                 timeout=None,
                  logger=None):
         """Configure and start-up remote server.
 
@@ -86,6 +88,12 @@ class RPyCRobotRemoteServer:
             else pathlib.Path(port_file).absolute()
         )
 
+        if timeout is not None:
+            timeout = convert_time(
+                timeout,
+                result_format='number'
+            )
+
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Server')
 
@@ -101,7 +109,7 @@ class RPyCRobotRemoteServer:
                 'allow_setattr': True,
                 'allow_delattr': True,
                 'exposed_prefix': '',
-            }
+            } | ({} if timeout is None else {'sync_request_timeout': timeout})
         )
 
         if serve:

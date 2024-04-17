@@ -3,6 +3,7 @@ import functools
 import rpyc
 from typing import Callable
 from contextlib import contextmanager
+from robot.libraries.DateTime import convert_time
 from robot.api.deco import not_keyword
 
 
@@ -53,9 +54,17 @@ class RPyCRobotRemoteClient:
     def __init__(self,
                  peer: str = 'localhost',
                  port: int = 18861,
-                 ipv6: bool = False):
+                 ipv6: bool = False,
+                 timeout=None):
         self._dir_cache = None
         self._keywords_cache = None
+
+        if timeout is not None:
+            timeout = convert_time(
+                timeout,
+                result_format='number'
+            )
+
         self._client = rpyc.connect(
             peer,
             port,
@@ -64,9 +73,9 @@ class RPyCRobotRemoteClient:
                 'allow_setattr': True,
                 'allow_delattr': True,
                 'exposed_prefix': '',
-            },
+            } | ({} if timeout is None else {'sync_request_timeout': timeout}),
             ipv6=ipv6,
-            keepalive=True
+            keepalive=True,
         )
 
         for name in ('ROBOT_LIBRARY_DOC_FORMAT', '__doc__'):

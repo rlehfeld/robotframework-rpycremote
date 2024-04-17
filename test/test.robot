@@ -1,5 +1,5 @@
 *** Settings ***
-Library    RPyCRobotRemote    localhost    18861    WITH NAME    RPyCTest
+Library    RPyCRobotRemote    localhost    18861    timeout=10 min    AS    RPyCTest
 
 *** Test Cases ***
 Test Remote
