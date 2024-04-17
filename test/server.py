@@ -7,6 +7,9 @@ from robot.api.deco import keyword, not_keyword
 
 
 class Provider:
+    """dummy test implementation"""
+    ROBOT_LIBRARY_DOC_FORMAT = 'text'
+
     the_real_answer_though = 43
 
     def __init__(self):

@@ -84,18 +84,14 @@ class RPyCRobotRemoteClient:
             keepalive=True,
         )
 
-        for name in ('ROBOT_LIBRARY_DOC_FORMAT', '__doc__'):
-            try:
-                value = getattr(self._client.root.library, name)
-            except AttributeError:
-                pass
-            else:
-                setattr(self, name, value)
-
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
         self._client._redirected = False
         self._client.sync_request = redirect_output(self._client.sync_request)
+
+    @property
+    def __doc__(self):
+        return getattr(self._client.root.library, '__doc__')
 
     def __dir__(self):
         if self._dir_cache is None:
@@ -103,7 +99,7 @@ class RPyCRobotRemoteClient:
             for name in dir(self._client.root.library):
                 if name[0:1] != '_':
                     obj = getattr(self._client.root.library, name)
-                    if callable(obj):
+                    if name.startswith('ROBOT_LIBRARY_') or callable(obj):
                         thedir.append(name)
             thedir.sort()
             self._dir_cache = thedir
@@ -116,7 +112,7 @@ class RPyCRobotRemoteClient:
             except AttributeError:
                 pass
             else:
-                if callable(obj):
+                if name.startswith('ROBOT_LIBRARY_') or callable(obj):
                     return obj
         raise AttributeError(
             f'{type(self).__name__!r} object has no attribute {name!r}'
