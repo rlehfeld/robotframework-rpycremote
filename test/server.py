@@ -67,7 +67,12 @@ handlers:
     class: logging.StreamHandler
     level: DEBUG
     formatter: simple
-    stream: ext://__main__.stderr
+    stream: ext://sys.__stderr__
+loggers:
+  RPyCRobotRemote:
+    level: ERROR
+    handlers: [console]
+    propagate: no
 root:
   level: DEBUG
   handlers: [console]

@@ -1,6 +1,7 @@
 import sys
 import rpyc
 import pathlib
+import logging
 import io
 from typing import TextIO, Optional
 from rpyc.utils.server import ThreadedServer
@@ -14,7 +15,8 @@ class RPyCRobotRemoteServer:
                  port_file: Optional[str | pathlib.Path | TextIO] = None,
                  serve: bool = True,
                  allow_remote_stop: bool = True,
-                 ipv6: bool = False):
+                 ipv6: bool = False,
+                 logger=None):
         """Configure and start-up remote server.
 
         :param library:     Test library instance or module to host.
@@ -83,12 +85,17 @@ class RPyCRobotRemoteServer:
                 port_file is None or isinstance(port_file, io.TextIOBase))
             else pathlib.Path(port_file).absolute()
         )
+
+        if logger is None:
+            logger = logging.getLogger('RPyCRobotRemote.Server')
+
         self._server = ThreadedServer(
             Service(library),
             hostname=host,
             port=port,
             ipv6=ipv6,
             auto_register=False,
+            logger=logger,
             protocol_config={
                 'allow_all_attr': True,
                 'allow_setattr': True,
