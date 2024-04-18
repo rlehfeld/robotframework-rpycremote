@@ -3,7 +3,15 @@ import yaml
 import logging
 import logging.config
 import RPyCRobotRemote
+import numbers
 from robot.api.deco import keyword, not_keyword
+
+
+class Region(namedtuple('Region', 'x y width height')):
+    def __new__(cls, *args):
+        if not all(isinstance(x, numbers.Integral) for x in args):
+            raise TypeError('all parameters must be of type int')
+        return super(Region, cls).__new__(cls, *args)
 
 
 class Provider:
@@ -11,6 +19,10 @@ class Provider:
     ROBOT_LIBRARY_DOC_FORMAT = 'text'
 
     the_real_answer_though = 43
+
+    dummy_dict = {
+        'key': 'value'
+    }
 
     def __init__(self):
         pass
@@ -27,6 +39,9 @@ class Provider:
         print(f'from remote {b}')
         return 42
 
+    def get_region(self):
+        return Region(1, 2, 3, 4)
+    
     def raise_error(self):
         raise RuntimeError('error')
 
