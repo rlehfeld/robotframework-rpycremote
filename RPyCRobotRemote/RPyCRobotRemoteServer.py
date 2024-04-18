@@ -49,6 +49,26 @@ class RPyCRobotRemoteServer:
                 def stop_remote_server():
                     self.stop()
 
+            def get_keyword_names(self):
+                get_kw_names = getattr(
+                    self._library,
+                    'get_keyword_names',
+                    None
+                )
+
+                if get_kw_names:
+                    return tuple(sorted(set(get_kw_names())))
+                else:
+                    attributes = [
+                        (name, getattr(self._library, name))
+                        for name in dir(self._library) if name[0:1] != '_'
+                    ]
+                    return tuple(
+                        name for name, value in attributes
+                        if (callable(value) and
+                            not getattr(value, 'robot_not_keyword', False))
+                    )
+
             @property
             def library(self):
                 return self._library

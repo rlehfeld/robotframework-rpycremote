@@ -58,7 +58,6 @@ class RPyCRobotRemoteClient:
                  ipv6: bool = False,
                  timeout=None,
                  logger=None):
-        self._dir_cache = None
         self._keywords_cache = None
 
         if timeout is not None:
@@ -93,18 +92,6 @@ class RPyCRobotRemoteClient:
     def __doc__(self):
         return getattr(self._client.root.library, '__doc__')
 
-    def __dir__(self):
-        if self._dir_cache is None:
-            thedir = super().__dir__()
-            for name in dir(self._client.root.library):
-                if name[0:1] != '_' and (
-                        name.startswith('ROBOT_LIBRARY_') or
-                        callable(getattr(self._client.root.library, name))):
-                    thedir.append(name)
-            thedir.sort()
-            self._dir_cache = thedir
-        return self._dir_cache
-
     def __getattr__(self, name: str):
         if name[0:1] != '_':
             try:
@@ -124,20 +111,9 @@ class RPyCRobotRemoteClient:
     @not_keyword
     def get_keyword_names(self):
         if self._keywords_cache is None:
-            get_keyword_names = getattr(
-                self._client.root.library,
-                'get_keyword_names',
-                None
-            )
-            if get_keyword_names:
-                base = set(get_keyword_names())
-                getdir = super().__dir__
-            else:
-                base = set()
-                getdir = self.__dir__
-
+            base = set(self._client.root.get_keyword_names())
             attributes = [(name, getattr(self, name))
-                          for name in getdir() if name[0:1] != '_']
+                          for name in dir(self) if name[0:1] != '_']
             self._keywords_cache = tuple(
                 sorted(
                     base | {

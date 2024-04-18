@@ -14,6 +14,8 @@ Test Remote
     Log    ${obj.value2}
     VAR    ${obj.value2}     10
 
+Test Region
+    RPyCTest.Get Region
 
 Test Exception
     Run Keyword And Expect Error    *    RPyCTest.Raise Error

@@ -2,8 +2,9 @@ import sys
 import yaml
 import logging
 import logging.config
-import RPyCRobotRemote
 import numbers
+import RPyCRobotRemote
+from collections import namedtuple
 from robot.api.deco import keyword, not_keyword
 
 
@@ -41,7 +42,7 @@ class Provider:
 
     def get_region(self):
         return Region(1, 2, 3, 4)
-    
+
     def raise_error(self):
         raise RuntimeError('error')
 
