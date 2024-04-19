@@ -4,15 +4,53 @@ import logging
 import logging.config
 import numbers
 import RPyCRobotRemote
-from collections import namedtuple
+# from collections import namedtuple
 from robot.api.deco import keyword, not_keyword
 
 
-class Region(namedtuple('Region', 'x y width height')):
-    def __new__(cls, *args):
-        if not all(isinstance(x, numbers.Integral) for x in args):
-            raise TypeError('all parameters must be of type int')
-        return super(Region, cls).__new__(cls, *args)
+class Region:
+    __slots__ = ['x', 'y', 'width', 'height']
+
+    def __init__(self,
+                 x: numbers.Integral,
+                 y: numbers.Integral,
+                 width: numbers.Integral,
+                 height: numbers.Integral):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__}('
+            + ', '.join(
+                map(
+                    lambda p: f'{p!s}={getattr(self, p)!r}',
+                    self.__slots__
+                )
+            )
+            + ')'
+        )
+
+    def __iter__(self):
+        return SlotIterator(self)
+
+
+class SlotIterator:
+    def __init__(self, obj):
+        self._obj = obj
+        self._pos = iter(obj.__slots__)
+
+    def __next__(self):
+        key = next(self._pos)
+        return getattr(self._obj, key)
+
+# class Region(namedtuple('Region', 'x y width height')):
+#     def __new__(cls, *args):
+#         if not all(isinstance(x, numbers.Integral) for x in args):
+#             raise TypeError('all parameters must be of type int')
+#         return super(Region, cls).__new__(cls, *args)
 
 
 class Provider:
