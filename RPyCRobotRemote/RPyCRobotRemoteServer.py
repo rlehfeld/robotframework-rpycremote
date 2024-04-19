@@ -3,7 +3,7 @@ import rpyc
 import pathlib
 import logging
 import io
-from typing import TextIO, Optional
+from typing import TextIO, Optional, Union
 from robot.libraries.DateTime import convert_time
 from rpyc.utils.server import ThreadedServer
 
@@ -13,7 +13,7 @@ class RPyCRobotRemoteServer:
                  library,
                  host: Optional[str] = 'localhost',
                  port: int = 18861,
-                 port_file: Optional[str | pathlib.Path | TextIO] = None,
+                 port_file: Optional[Union[str, pathlib.Path, TextIO]] = None,
                  serve: bool = True,
                  allow_remote_stop: bool = True,
                  ipv6: bool = False,
