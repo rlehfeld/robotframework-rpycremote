@@ -3,6 +3,7 @@ import rpyc
 import pathlib
 import logging
 import io
+import inspect
 from typing import TextIO, Optional, Union
 from robot.libraries.DateTime import convert_time
 from rpyc.utils.server import ThreadedServer
@@ -60,13 +61,10 @@ class RPyCRobotRemoteServer:
                 if get_kw_names:
                     return tuple(sorted(set(get_kw_names())))
                 else:
-                    attributes = [
-                        (name, getattr(self._library, name))
-                        for name in dir(self._library) if name[0:1] != '_'
-                    ]
+                    attributes = inspect.getmembers(self._library, is_function_or_method)
                     return tuple(
                         name for name, value in attributes
-                        if (callable(value) and
+                        if (name[0:1] != '_' and
                             not getattr(value, 'robot_not_keyword', False))
                     )
 
@@ -167,3 +165,7 @@ class RPyCRobotRemoteServer:
         the server is activated.
         """
         return self._server.port
+
+
+def is_function_or_method(item):
+    return inspect.isfunction(item) or inspect.ismethod(item)

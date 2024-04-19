@@ -14,8 +14,15 @@ Test Remote
     Log    ${obj.value2}
     VAR    ${obj.value2}     10
 
-Test Region
-    @{region}    RPyCTest.Get Region
+Test Region Scalar
+    ${region}    RPyCTest.Get Region
+
+Test Region List
+    ${region}    RPyCTest.Get Region
+    VAR    @{region}    ${{tuple($region)}}
+
+Test Region Array
+    &{region}    RPyCTest.Get Region
 
 Test Exception
     Run Keyword And Expect Error    *    RPyCTest.Raise Error
