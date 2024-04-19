@@ -130,6 +130,7 @@ class RPyCRobotRemoteServer:
             logger=logger,
             protocol_config={
                 'allow_all_attr': True,
+                'allow_getattr': True,
                 'allow_setattr': True,
                 'allow_delattr': True,
                 'exposed_prefix': '',
