@@ -18,7 +18,8 @@ class RPyCRobotRemoteServer:
                  allow_remote_stop: bool = True,
                  ipv6: bool = False,
                  timeout=None,
-                 logger=None):
+                 logger=None,
+                 server=None):
         """Configure and start-up remote server.
 
         :param library:     Test library instance or module to host.
@@ -117,7 +118,10 @@ class RPyCRobotRemoteServer:
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Server')
 
-        self._server = ThreadedServer(
+        if server is None:
+            server = ThreadedServer
+
+        self._server = server(
             Service(library),
             hostname=host,
             port=port,
