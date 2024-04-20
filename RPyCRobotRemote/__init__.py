@@ -31,12 +31,25 @@ class SingleServer(_RPyCServer):
 # and throws expcetion
 def patch_is_list_like(func):
     def is_list_like(item):
+        if isinstance(item, (str, bytes, bytearray)):
+            return False
         try:
-            if isinstance(item, (str, bytes, bytearray, UserString, IOBase)):
+            if isinstance(item, UserString):
                 return False
+        except TypeError:
+            pass
+
+        try:
+            if isinstance(item, IOBase):
+                return False
+        except TypeError:
+            pass
+
+        try:
             return isinstance(item, Iterable)
         except TypeError:
             pass
+
         try:
             iter(item)
         except TypeError:
