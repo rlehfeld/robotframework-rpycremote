@@ -61,7 +61,10 @@ class RPyCRobotRemoteServer:
                 if get_kw_names:
                     return tuple(sorted(set(get_kw_names())))
                 else:
-                    attributes = inspect.getmembers(self._library, is_function_or_method)
+                    attributes = inspect.getmembers(
+                        self._library,
+                        is_function_or_method
+                    )
                     return tuple(
                         name for name, value in attributes
                         if (name[0:1] != '_' and

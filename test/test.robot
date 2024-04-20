@@ -21,8 +21,12 @@ Test Region List
     ${region}    RPyCTest.Get Region
     VAR    @{region}    ${{tuple($region)}}
 
+Test Region Array via Scalar
+    ${region}    RPyCTest.Get Region
+    Log Many    @{region}
+
 Test Region Array
-    &{region}    RPyCTest.Get Region
+    @{region}    RPyCTest.Get Region
 
 Test Exception
     Run Keyword And Expect Error    *    RPyCTest.Raise Error
