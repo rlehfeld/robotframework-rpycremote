@@ -57,7 +57,8 @@ class RPyCRobotRemoteClient:
                  port: int = 18861,
                  ipv6: bool = False,
                  timeout=None,
-                 logger=None):
+                 logger=None,
+                 **rpyc_config):
         self._keywords_cache = None
 
         if timeout is not None:
@@ -72,11 +73,11 @@ class RPyCRobotRemoteClient:
         self._client = rpyc.connect(
             peer,
             port,
-            config={
+            config=rpyc_config | {
                 'allow_all_attr': True,
                 'allow_setattr': True,
                 'allow_delattr': True,
-                'exposed_prefix': '',
+                'allow_exposed_attrs': False,
                 'logger': logger,
             } | ({} if timeout is None else {'sync_request_timeout': timeout}),
             ipv6=ipv6,
