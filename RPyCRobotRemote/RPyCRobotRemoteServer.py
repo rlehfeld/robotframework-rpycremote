@@ -131,7 +131,7 @@ class RPyCRobotRemoteServer:
             auto_register=False,
             logger=logger,
             protocol_config=rpyc_config | {
-                'allow_all_attr': True,
+                'allow_all_attrs': True,
                 'allow_getattr': True,
                 'allow_setattr': True,
                 'allow_delattr': True,

@@ -74,7 +74,8 @@ class RPyCRobotRemoteClient:
             peer,
             port,
             config=rpyc_config | {
-                'allow_all_attr': True,
+                'allow_all_attrs': True,
+                'allow_getattr': True,
                 'allow_setattr': True,
                 'allow_delattr': True,
                 'allow_exposed_attrs': False,
