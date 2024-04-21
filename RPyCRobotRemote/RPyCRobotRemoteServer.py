@@ -20,7 +20,8 @@ class RPyCRobotRemoteServer:
                  ipv6: bool = False,
                  timeout=None,
                  logger=None,
-                 server=None):
+                 server=None,
+                 **rpyc_config):
         """Configure and start-up remote server.
 
         :param library:     Test library instance or module to host.
@@ -129,12 +130,12 @@ class RPyCRobotRemoteServer:
             ipv6=ipv6,
             auto_register=False,
             logger=logger,
-            protocol_config={
+            protocol_config=rpyc_config | {
                 'allow_all_attr': True,
                 'allow_getattr': True,
                 'allow_setattr': True,
                 'allow_delattr': True,
-                'exposed_prefix': '',
+                'allow_exposed_attrs': False,
             } | ({} if timeout is None else {'sync_request_timeout': timeout})
         )
 
