@@ -1,0 +1,12 @@
+/RPyCRobotRemote/_version.py
+/venv*/
+/allowed_signers
+\#*\#
+*~
+*.pyc
+*.egg-info/
+log.html
+output.xml
+report.html
+syslog.txt
+debug.txt

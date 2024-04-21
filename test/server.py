@@ -1,12 +1,15 @@
+"""
+Test Code for RPyCRobotServer
+"""
 import sys
-import yaml
 import logging
 import logging.config
+import yaml
 import RPyCRobotRemote
 from provider import Provider
 
 
-logconfig = """
+LOGCONFIG = """
 version: 1
 formatters:
   simple:
@@ -29,7 +32,7 @@ root:
 
 logging.config.dictConfig(
     yaml.load(
-        logconfig,
+        LOGCONFIG,
         Loader=yaml.SafeLoader
     ),
 )
