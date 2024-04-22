@@ -50,7 +50,7 @@ jobs:
           pip install -U setuptools_scm setuptools pylint robotframework pyyaml rpyc
       - name: Analysing the code with pylint
         run: |
-          pylint $(git ls-files '*.py')
+          pylint --module-naming-style=any $(git ls-files '*.py')
 
   robot-framework:
     strategy:

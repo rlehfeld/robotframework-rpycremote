@@ -13,6 +13,10 @@ from rpyc.utils.server import ThreadedServer
 
 
 class RPyCRobotRemoteServer:
+    """
+    Implements Remote Sever Interface for Robot Framework based on RPyC
+    """
+    # pylint: disable=R0913
     def __init__(self,  # noqa, C901 allow higher complexity here
                  library,
                  host: Optional[str] = 'localhost',
@@ -46,6 +50,7 @@ class RPyCRobotRemoteServer:
                             if ``False``, use IPv4 only connections.
         """
         class Service(rpyc.Service):
+            """The root service provided"""
             def __init__(self, library):
                 super().__init__()
                 self._library = library
@@ -53,9 +58,11 @@ class RPyCRobotRemoteServer:
             if allow_remote_stop:
                 @staticmethod
                 def stop_remote_server():
+                    """stop server from remote"""
                     self.stop()
 
             def get_keyword_names(self):
+                """return the methods which can be used as keywords"""
                 get_kw_names = getattr(
                     self._library,
                     'get_keyword_names',
@@ -77,10 +84,12 @@ class RPyCRobotRemoteServer:
 
             @property
             def library(self):
+                """wrapprt to retrieve the library object from remote"""
                 return self._library
 
             @property
             def stdin(self):
+                """wrapprt to change stdout from remote"""
                 return sys.stdin
 
             @stdin.setter
@@ -89,6 +98,7 @@ class RPyCRobotRemoteServer:
 
             @property
             def stdout(self):
+                """wrapprt to change stdout from remote"""
                 return sys.stdout
 
             @stdout.setter
@@ -97,6 +107,7 @@ class RPyCRobotRemoteServer:
 
             @property
             def stderr(self):
+                """wrapprt to change stderr from remote"""
                 return sys.stderr
 
             @stderr.setter
@@ -120,6 +131,7 @@ class RPyCRobotRemoteServer:
         if server is None:
             server = ThreadedServer
 
+        # pylint: disable=duplicate-code
         config = {}
         if rpyc_config:
             config.update(rpyc_config)
@@ -140,6 +152,7 @@ class RPyCRobotRemoteServer:
                 timeout,
                 result_format='number'
             )
+        # pylint: enable=duplicate-code
 
         self._server = server(
             Service(library),
@@ -153,16 +166,19 @@ class RPyCRobotRemoteServer:
 
         if serve:
             self.serve()
+    # pylint: enable=R0913
 
     def stop(self):
+        """stop serving requests"""
         self._server.active = False
 
     def serve(self):
+        """start serving requests"""
         if self._port_file:
             if isinstance(self._port_file, io.TextIOBase):
                 print(self.server_port, file=self._port_file)
             else:
-                with self._port_file.open('w') as f:
+                with self._port_file.open('w', encoding='utf-8') as f:
                     print(self.server_port, file=f)
         self._server.start()
         if self._port_file and not isinstance(self._port_file, io.TextIOBase):
@@ -184,4 +200,5 @@ class RPyCRobotRemoteServer:
 
 
 def is_function_or_method(item):
+    """return True in case item is a function or method"""
     return inspect.isfunction(item) or inspect.ismethod(item)

@@ -16,7 +16,9 @@ def redirect(conn):
     """
     Redirects the other party's ``stdout`` and ``stderr`` to local
     """
+    # pylint: disable=W0212
     alreadyredirected, conn._redirected = conn._redirected, True
+    # pylint: enable=W0212
     if not alreadyredirected:
         orig_stdout = conn.root.stdout
         orig_stderr = conn.root.stderr
@@ -31,7 +33,9 @@ def redirect(conn):
                 conn.root.stderr = orig_stderr
             except EOFError:
                 pass
+            # pylint: disable=W0212
             conn._redirected = False
+            # pylint: enable=W0212
     else:
         yield
 
@@ -50,7 +54,9 @@ def redirect_output(func: Callable):
             return function(self, handler, *args, **kwargs)
 
     if this:
+        # pylint: disable=E1120
         return sync_request.__get__(this, func.__class__)
+        # pylint: enable=E1120
     return sync_request
 
 
@@ -62,6 +68,7 @@ class RPyCRobotRemoteClient:
 
     __slot__ = ()
 
+    # pylint: disable=R0913
     def __init__(self,
                  peer: str = 'localhost',
                  port: int = 18861,
@@ -74,6 +81,7 @@ class RPyCRobotRemoteClient:
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Client')
 
+        # pylint: disable=duplicate-code
         config = {}
         if rpyc_config:
             config.update(rpyc_config)
@@ -94,6 +102,7 @@ class RPyCRobotRemoteClient:
                 timeout,
                 result_format='number'
             )
+        # pylint: enable=duplicate-code
 
         self._client = rpyc.connect(
             peer,
@@ -107,6 +116,7 @@ class RPyCRobotRemoteClient:
         # during handling of sync_request
         self._client._redirected = False
         self._client.sync_request = redirect_output(self._client.sync_request)
+    # pylint: enable=R0913
 
     @property
     def __doc__(self):
