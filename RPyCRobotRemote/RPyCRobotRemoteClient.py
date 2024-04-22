@@ -1,9 +1,12 @@
+"""
+Client Implementation for RPyCRobotRemote
+"""
 import sys
 import functools
 import logging
-import rpyc
 from typing import Callable
 from contextlib import contextmanager
+import rpyc
 from robot.libraries.DateTime import convert_time
 from robot.api.deco import not_keyword
 

@@ -1,13 +1,16 @@
-from .RPyCRobotRemoteClient import RPyCRobotRemoteClient as Client
-from .RPyCRobotRemoteServer import RPyCRobotRemoteServer as Server # noqa, F401
-from rpyc.utils.server import Server as _RPyCServer
+"""
+__init__.py for RPyCRobotRemote
+"""
 from collections.abc import Iterable
 from collections import UserString
 from io import IOBase
+from rpyc.utils.server import Server as _RPyCServer
 import robot.utils
 import robot.variables.replacer
 import robot.variables.assigner
 import robot.variables.store
+from .RPyCRobotRemoteClient import RPyCRobotRemoteClient as Client
+from .RPyCRobotRemoteServer import RPyCRobotRemoteServer as Server # noqa, F401
 
 RPyCRobotRemote = Client
 
@@ -20,6 +23,7 @@ class SingleServer(_RPyCServer):
     """
 
     def _accept_method(self, sock):
+        """accept method"""
         try:
             self._authenticate_and_serve_client(sock)
         finally:
@@ -30,6 +34,7 @@ class SingleServer(_RPyCServer):
 # Python seems to have a problem with isinstance here
 # and throws expcetion
 def patch_is_list_like(func):
+    """patch is_list_like as it leads to exception with remote namedtuples"""
     def is_list_like(item):
         if isinstance(item, (str, bytes, bytearray)):
             return False
@@ -54,8 +59,7 @@ def patch_is_list_like(func):
             iter(item)
         except TypeError:
             return False
-        else:
-            return True
+        return True
 
     code = is_list_like.__code__
     func.__code__ = func.__code__.replace(

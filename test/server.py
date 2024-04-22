@@ -5,8 +5,8 @@ import sys
 import logging
 import logging.config
 import yaml
-import RPyCRobotRemote
 from provider import Provider
+import RPyCRobotRemote
 
 
 LOGCONFIG = """
