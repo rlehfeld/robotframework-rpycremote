@@ -18,8 +18,8 @@ def redirect(conn):
     """
     # pylint: disable=W0212
     alreadyredirected, conn._is_redirected = conn._is_redirected, True
-    # pylint: enable=W0212
     if not alreadyredirected and conn._is_connected:
+        # pylint: enable=W0212
         orig_stdout = conn.root.stdout
         orig_stderr = conn.root.stderr
 
@@ -125,7 +125,8 @@ class RPyCRobotRemoteClient:
 
     def __getattr__(self, name: str):
         if (name[0:1] != '_' and
-                (not name.startswith('ROBOT_LIBRARY_') or self._client._is_connected)):
+                (not name.startswith('ROBOT_LIBRARY_') or
+                 self._client._is_connected)):
             try:
                 obj = getattr(self._client.root.library, name)
             except AttributeError:
@@ -140,7 +141,9 @@ class RPyCRobotRemoteClient:
     def stop_remote_server(self):
         """Stop remote server."""
         self._client.root.stop_remote_server()
+        # pylint: disable=W0212
         self._client._is_connected = False
+        # pylint: enable=W0212
         self._client.close()
 
     @not_keyword
