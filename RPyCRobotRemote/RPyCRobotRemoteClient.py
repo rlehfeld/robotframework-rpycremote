@@ -17,9 +17,9 @@ def redirect(conn):
     Redirects the other party's ``stdout`` and ``stderr`` to local
     """
     # pylint: disable=W0212
-    alreadyredirected, conn._redirected = conn._redirected, True
+    alreadyredirected, conn._is_redirected = conn._is_redirected, True
     # pylint: enable=W0212
-    if not alreadyredirected:
+    if not alreadyredirected and conn._is_connected:
         orig_stdout = conn.root.stdout
         orig_stderr = conn.root.stderr
 
@@ -34,7 +34,7 @@ def redirect(conn):
             except EOFError:
                 pass
             # pylint: disable=W0212
-            conn._redirected = False
+            conn._is_redirected = False
             # pylint: enable=W0212
     else:
         yield
@@ -114,8 +114,8 @@ class RPyCRobotRemoteClient:
 
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
-        self._connected = True
-        self._client._redirected = False
+        self._client._is_connected = True
+        self._client._is_redirected = False
         self._client.sync_request = redirect_output(self._client.sync_request)
     # pylint: enable=R0913
 
@@ -125,7 +125,7 @@ class RPyCRobotRemoteClient:
 
     def __getattr__(self, name: str):
         if (name[0:1] != '_' and
-                (not name.startswith('ROBOT_LIBRARY_') or self._connected)):
+                (not name.startswith('ROBOT_LIBRARY_') or self._client._is_connected)):
             try:
                 obj = getattr(self._client.root.library, name)
             except AttributeError:
@@ -140,8 +140,8 @@ class RPyCRobotRemoteClient:
     def stop_remote_server(self):
         """Stop remote server."""
         self._client.root.stop_remote_server()
+        self._client._is_connected = False
         self._client.close()
-        self._connected = False
 
     @not_keyword
     def get_keyword_names(self):
