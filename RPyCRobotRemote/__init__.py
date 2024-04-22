@@ -52,16 +52,7 @@ def patch_is_list_like(func):
             return False
         return True
 
-    if True:
-        func.__code__ = is_list_like.__code__
-    else:
-        code = is_list_like.__code__
-        func.__code__ = func.__code__.replace(
-            co_code=code.co_code,
-            co_consts=code.co_consts,
-            co_names=code.co_names,
-            co_flags=code.co_flags,
-            co_stacksize=code.co_stacksize)
+    func.__code__ = is_list_like.__code__
 
 
 patch_is_list_like(robot.utils.is_list_like)

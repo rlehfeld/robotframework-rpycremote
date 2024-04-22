@@ -13,7 +13,7 @@ from rpyc.utils.server import ThreadedServer
 
 
 class RPyCRobotRemoteServer:
-    def __init__(self,
+    def __init__(self,  # noqa, C901 allow higher complexity here
                  library,
                  host: Optional[str] = 'localhost',
                  port: int = 18861,
