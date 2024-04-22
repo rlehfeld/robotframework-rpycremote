@@ -36,38 +36,32 @@ class SingleServer(_RPyCServer):
 def patch_is_list_like(func):
     """patch is_list_like as it leads to exception with remote namedtuples"""
     def is_list_like(item):
-        if isinstance(item, (str, bytes, bytearray)):
-            return False
-        try:
-            if isinstance(item, UserString):
-                return False
-        except TypeError:
-            pass
-
-        try:
-            if isinstance(item, IOBase):
-                return False
-        except TypeError:
-            pass
-
+        for t in (str, bytes, bytearray, UserString, IOBase):
+            try:
+                if isinstance(item, t):
+                    return False
+            except TypeError:
+                pass
         try:
             return isinstance(item, Iterable)
         except TypeError:
             pass
-
         try:
             iter(item)
         except TypeError:
             return False
         return True
 
-    code = is_list_like.__code__
-    func.__code__ = func.__code__.replace(
-        co_code=code.co_code,
-        co_consts=code.co_consts,
-        co_names=code.co_names,
-        co_flags=code.co_flags,
-        co_stacksize=code.co_stacksize)
+    if True:
+        func.__code__ = is_list_like.__code__
+    else:
+        code = is_list_like.__code__
+        func.__code__ = func.__code__.replace(
+            co_code=code.co_code,
+            co_consts=code.co_consts,
+            co_names=code.co_names,
+            co_flags=code.co_flags,
+            co_stacksize=code.co_stacksize)
 
 
 patch_is_list_like(robot.utils.is_list_like)
