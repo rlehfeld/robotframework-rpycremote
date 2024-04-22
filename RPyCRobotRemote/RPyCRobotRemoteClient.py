@@ -83,7 +83,7 @@ class RPyCRobotRemoteClient:
         )
 
         if timeout is not None:
-            config['sync_request_timeout'] =  convert_time(
+            config['sync_request_timeout'] = convert_time(
                 timeout,
                 result_format='number'
             )
