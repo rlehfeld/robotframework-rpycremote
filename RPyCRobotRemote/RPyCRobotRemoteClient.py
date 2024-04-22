@@ -138,6 +138,7 @@ class RPyCRobotRemoteClient:
     def stop_remote_server(self):
         """Stop remote server."""
         self._client.root.stop_remote_server()
+        self._client.close()
 
     @not_keyword
     def get_keyword_names(self):
