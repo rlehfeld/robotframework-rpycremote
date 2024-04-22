@@ -82,5 +82,6 @@ jobs:
           pip install -e .
       - name: Executing Robot Framework Tests
         run: |
-	  python test/server &
+          python test/server 2>&1 &
+          sleep 3
           robot test/ 2>&1
