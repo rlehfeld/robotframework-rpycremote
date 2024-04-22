@@ -37,6 +37,10 @@ def redirect(conn):
 
 
 def redirect_output(func: Callable):
+    """
+    decorator for RPyC connetion to automatically forward
+    stdout and stderr from remote to local
+    """
     this = getattr(func, '__self__', None)
     function = getattr(func, '__func__', func)
 
@@ -51,6 +55,9 @@ def redirect_output(func: Callable):
 
 
 class RPyCRobotRemoteClient:
+    """
+    Implements Remote Client Interface for Robot Framework based on RPyC
+    """
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
 
     __slot__ = ()
@@ -119,10 +126,12 @@ class RPyCRobotRemoteClient:
         )
 
     def stop_remote_server(self):
+        """Stop remote server."""
         self._client.root.stop_remote_server()
 
     @not_keyword
     def get_keyword_names(self):
+        """Return keyword names supported by the remote server."""
         if self._keywords_cache is None:
             base = set(self._client.root.get_keyword_names())
             attributes = [(name, getattr(self, name))
