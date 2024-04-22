@@ -111,17 +111,32 @@ class RPyCRobotRemoteServer:
             else pathlib.Path(port_file).absolute()
         )
 
-        if timeout is not None:
-            timeout = convert_time(
-                timeout,
-                result_format='number'
-            )
-
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Server')
 
         if server is None:
             server = ThreadedServer
+
+        config = {}
+        if rpyc_config:
+            config.update(rpyc_config)
+
+        config.update(
+            {
+                'allow_all_attrs': True,
+                'allow_getattr': True,
+                'allow_setattr': True,
+                'allow_delattr': True,
+                'allow_exposed_attrs': False,
+                'logger': logger,
+            }
+        )
+
+        if timeout is not None:
+            config['sync_request_timeout'] =  convert_time(
+                timeout,
+                result_format='number'
+            )
 
         self._server = server(
             Service(library),
@@ -130,13 +145,7 @@ class RPyCRobotRemoteServer:
             ipv6=ipv6,
             auto_register=False,
             logger=logger,
-            protocol_config=rpyc_config | {
-                'allow_all_attrs': True,
-                'allow_getattr': True,
-                'allow_setattr': True,
-                'allow_delattr': True,
-                'allow_exposed_attrs': False,
-            } | ({} if timeout is None else {'sync_request_timeout': timeout})
+            protocol_config=config,
         )
 
         if serve:

@@ -61,26 +61,34 @@ class RPyCRobotRemoteClient:
                  **rpyc_config):
         self._keywords_cache = None
 
-        if timeout is not None:
-            timeout = convert_time(
-                timeout,
-                result_format='number'
-            )
-
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Client')
 
-        self._client = rpyc.connect(
-            peer,
-            port,
-            config=rpyc_config | {
+        config = {}
+        if rpyc_config:
+            config.update(rpyc_config)
+
+        config.update(
+            {
                 'allow_all_attrs': True,
                 'allow_getattr': True,
                 'allow_setattr': True,
                 'allow_delattr': True,
                 'allow_exposed_attrs': False,
                 'logger': logger,
-            } | ({} if timeout is None else {'sync_request_timeout': timeout}),
+            }
+        )
+
+        if timeout is not None:
+            config['sync_request_timeout'] =  convert_time(
+                timeout,
+                result_format='number'
+            )
+
+        self._client = rpyc.connect(
+            peer,
+            port,
+            config=config,
             ipv6=ipv6,
             keepalive=True,
         )
