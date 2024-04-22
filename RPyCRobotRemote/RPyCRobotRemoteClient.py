@@ -114,6 +114,7 @@ class RPyCRobotRemoteClient:
 
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
+        self._connected = True
         self._client._redirected = False
         self._client.sync_request = redirect_output(self._client.sync_request)
     # pylint: enable=R0913
@@ -123,7 +124,8 @@ class RPyCRobotRemoteClient:
         return getattr(self._client.root.library, '__doc__')
 
     def __getattr__(self, name: str):
-        if name[0:1] != '_':
+        if (name[0:1] != '_' and
+                (not name.startswith('ROBOT_LIBRARY_') or self._connected)):
             try:
                 obj = getattr(self._client.root.library, name)
             except AttributeError:
@@ -139,6 +141,7 @@ class RPyCRobotRemoteClient:
         """Stop remote server."""
         self._client.root.stop_remote_server()
         self._client.close()
+        self._connected = False
 
     @not_keyword
     def get_keyword_names(self):
