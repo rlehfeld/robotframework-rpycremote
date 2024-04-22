@@ -10,16 +10,16 @@ Test Remote
     Log    ${obj.value}
     ${ret} =    Call Method    ${obj}   method    1    ${2}    3    key=${5}
     ${ret} =    Call Method    ${obj}    __call__    1    ${2}    3    key=${None}
-    VAR    ${obj.value}     5
+    ${obj.value}     Set Variable    ${5}
     Log    ${obj.value2}
-    VAR    ${obj.value2}     10
+    ${obj.value2}     Set Variable    ${10}
 
 Test Region Scalar
     ${region}    RPyCTest.Get Region
 
 Test Region List
     ${region}    RPyCTest.Get Region
-    VAR    @{region}    ${{tuple($region)}}
+    @{region}    Set Variable    ${{tuple($region)}}
 
 Test Region Array via Scalar
     ${region}    RPyCTest.Get Region
