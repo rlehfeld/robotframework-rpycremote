@@ -81,6 +81,10 @@ class Provider:
         """keyword which return a region"""
         return Region(1, 2, 3, 4)
 
+    def get_dictionary(self):
+        """keyword which return a region"""
+        return {"first": 1, "second": 2}
+
     def raise_error(self):
         """keyword which raises an error"""
         raise RuntimeError('error')

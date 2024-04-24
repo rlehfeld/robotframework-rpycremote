@@ -1,5 +1,6 @@
 *** Settings ***
 Library    RPyCRobotRemote    localhost    18861    timeout=10 min    WITH NAME    RPyCTest
+Library    Collections
 
 *** Test Cases ***
 Test Remote
@@ -27,6 +28,11 @@ Test Region Array via Scalar
 
 Test Region Array
     @{region}    RPyCTest.Get Region
+
+Test Dictionary
+    &{dict}    RPyCTest.Get Dictionary
+    VAR    &{expected}    first=${1}    second=${2}
+    Collections.Dictionaries Should Be Equal    ${dict}    ${expected}
 
 Test Exception
     Run Keyword And Expect Error    *    RPyCTest.Raise Error
