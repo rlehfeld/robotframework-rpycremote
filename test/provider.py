@@ -29,6 +29,11 @@ class Provider:
             self._value = 1
             self.value2 = 5
 
+        def __getattribute__(self, attr):
+            if attr in ('__class__'):
+                raise AttributeError(f'catched {attr}')
+            return super().__getattribute__(attr)
+
         @property
         def value(self):
             """value getter"""
