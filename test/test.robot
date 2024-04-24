@@ -31,7 +31,7 @@ Test Region Array
 
 Test Dictionary
     &{dict}    RPyCTest.Get Dictionary
-    VAR    &{expected}    first=${1}    second=${2}
+    ${expected}    Create Dictionary    first=${1}    second=${2}
     Collections.Dictionaries Should Be Equal    ${dict}    ${expected}
 
 Test Exception
