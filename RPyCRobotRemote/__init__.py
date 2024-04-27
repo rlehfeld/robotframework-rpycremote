@@ -77,12 +77,13 @@ def patch_get_id_pack(func):
         So, check thy assumptions regarding the given object when creating
         `id_pack`.
         """
-        if hasattr(obj, '____id_pack__'):
-            # netrefs are handled first since __class__ is a descriptor
-            return obj.____id_pack__
+        undef = object()
+        name_pack = getattr(obj, '____id_pack__', undef)
+        if name_pack is not undef:
+            return name_pack
 
-        if (inspect.ismodule(obj) or
-                getattr(obj, '__name__', None) == 'module'):
+        obj_name = getattr(obj, '__name__', None)
+        if (inspect.ismodule(obj) or obj_name == 'module'):
             if isinstance(obj, type):  # module
                 obj_cls = type(obj)
                 name_pack = (
@@ -90,34 +91,37 @@ def patch_get_id_pack(func):
                 )
                 return (name_pack, id(type(obj)), id(obj))
 
-            if inspect.ismodule(obj) and obj.__name__ != 'module':
-                if obj.__name__ in sys.modules:
-                    name_pack = obj.__name__
+            if inspect.ismodule(obj) and obj_name != 'module':
+                if obj_name in sys.modules:
+                    name_pack = obj_name
                 else:
+                    obj_cls = getattr(obj, '__class__', type(obj))
                     name_pack = (
-                        f'{type(obj).__module__}.{obj.__name__}'
+                        f'{obj_cls.__module__}.{obj_name}'
                     )
             elif inspect.ismodule(obj):
                 name_pack = (
-                    f'{obj.__module__}.{obj.__name__}'
-                )
-            elif hasattr(obj, '__module__'):
-                name_pack = (
-                    f'{obj.__module__}.{obj.__name__}'
+                    f'{obj.__module__}.{obj_name}'
                 )
             else:
-                obj_cls = type(obj)
-                name_pack = f'{obj.__name__}'
+                obj_module = getattr(obj, '__module__', undef)
+                if obj_module is not undef:
+                    name_pack = (
+                        f'{obj.__module__}.{obj_name}'
+                    )
+                else:
+                    name_pack = obj_name
             return (name_pack, id(type(obj)), id(obj))
 
         if not inspect.isclass(obj):
+            obj_cls = getattr(obj, '__class__', type(obj))
             name_pack = (
-                f'{type(obj).__module__}.{type(obj).__name__}'
+                f'{obj_cls.__module__}.{obj_cls.__name__}'
             )
             return (name_pack, id(type(obj)), id(obj))
 
         name_pack = (
-            f'{obj.__module__}.{obj.__name__}'
+            f'{obj.__module__}.{obj_name}'
         )
         return (name_pack, id(obj), 0)
 
