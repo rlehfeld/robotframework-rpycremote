@@ -87,4 +87,4 @@ jobs:
         run: |
           python test/server.py 2>&1 &
           sleep 3
-          robot test/ 2>&1
+          PYTHONPATH=test robot test/ 2>&1
