@@ -4,6 +4,7 @@ Sample service Provide() used for testing RPyCRobot client and server
 import numbers
 from collections import namedtuple
 from robot.api.deco import keyword, not_keyword
+from Model import DummyModel
 
 
 class Region(namedtuple('Region', 'x y width height')):
@@ -96,3 +97,7 @@ class Provider:
     def dummy_test(self):
         """keyword which returns an object"""
         return self.Dummy()
+
+    def model_test(self, model: DummyModel):
+        """keyword which returns an object"""
+        return model.value

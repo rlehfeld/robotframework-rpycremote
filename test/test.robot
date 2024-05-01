@@ -1,5 +1,6 @@
 *** Settings ***
 Library    RPyCRobotRemote    localhost    18861    timeout=10 min    WITH NAME    RPyCTest
+Library    Model
 Library    Collections
 
 *** Test Cases ***
@@ -14,6 +15,17 @@ Test Remote
     ${obj.value}     Set Variable    ${5}
     Log    ${obj.value2}
     ${obj.value2}     Set Variable    ${10}
+
+Test Exec
+    RPyCTest.Remote Execute    import math
+
+Test Eval
+    ${math}    RPyCTest.Remote Eval    math
+    ${ret}    Call Method    ${math}    ceil    ${2.5}
+
+Test Model
+    ${obj}    Model.Get Model
+    ${ret}    RPyCTest.Model Test    ${obj}
 
 Test Region Scalar
     ${region}    RPyCTest.Get Region

@@ -60,6 +60,22 @@ def redirect_output(func: Callable):
     return sync_request
 
 
+class Service(rpyc.Service):
+    """Extends the simple rpyc.Service with eval and execute"""
+    __slots__ = ()
+
+    def on_connect(self, conn):
+        """called when the connection is established"""
+        super().on_connect(conn)
+        self._install(conn, conn.root)
+
+    @staticmethod
+    def _install(conn, slave):
+        """install commands from remote on the client"""
+        conn.eval = slave.eval
+        conn.execute = slave.execute
+
+
 class RPyCRobotRemoteClient:
     """
     Implements Remote Client Interface for Robot Framework based on RPyC
@@ -107,6 +123,7 @@ class RPyCRobotRemoteClient:
         self._client = rpyc.connect(
             peer,
             port,
+            service=Service,
             config=config,
             ipv6=ipv6,
             keepalive=True,
@@ -137,6 +154,14 @@ class RPyCRobotRemoteClient:
         raise AttributeError(
             f'{type(self).__name__!r} object has no attribute {name!r}'
         )
+
+    def remote_eval(self, text):
+        """evaluate arbitrary code (using ``eval``) on remote"""
+        return self._client.eval(text)
+
+    def remote_execute(self, text):
+        """execute arbitrary code (using ``exec``) on remote"""
+        self._client.execute(text)
 
     def stop_remote_server(self):
         """Stop remote server."""

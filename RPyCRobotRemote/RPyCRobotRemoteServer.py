@@ -9,6 +9,9 @@ import inspect
 from typing import TextIO, Optional, Union
 from robot.libraries.DateTime import convert_time
 import rpyc
+# pylint: disable=E0611
+from rpyc.lib.compat import execute
+# pylint: enable=E0611
 from rpyc.utils.server import ThreadedServer
 
 
@@ -53,6 +56,7 @@ class RPyCRobotRemoteServer:
             """The root service provided"""
             def __init__(self, library):
                 super().__init__()
+                self.namespace = {}
                 self._library = library
 
             if allow_remote_stop:
@@ -60,6 +64,16 @@ class RPyCRobotRemoteServer:
                 def stop_remote_server():
                     """stop server from remote"""
                     self.stop()
+
+            def execute(self, text):
+                """execute arbitrary code (using ``exec``)"""
+                execute(text, self.namespace)
+
+            def eval(self, text):
+                """evaluate arbitrary code (using ``eval``)"""
+                # pylint: disable=W0123
+                return eval(text, self.namespace)
+                # pylint: enable=W0123
 
             def get_keyword_names(self):
                 """return the methods which can be used as keywords"""
