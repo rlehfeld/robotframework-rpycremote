@@ -129,3 +129,35 @@ def patch_get_id_pack(func):
 
 
 patch_get_id_pack(rpyc.lib.get_id_pack)
+
+
+# work around problems with get_methods in RPyC with pydantic BaseModel
+# def patch_get_methods(func):
+#     """patch get_methods"""
+#     def get_methods(obj_attrs, obj):
+#         """introspects the given (local) object, returning a list of all of its
+#         methods (going up the MRO).
+
+#         :param obj: any local (not proxy) python object
+
+#         :returns: a list of ``(method name, docstring)`` tuples of all the methods
+#                   of the given object
+#         """
+#         methods = {}
+#         attrs = {}
+#         if isinstance(obj, type):
+#             # don't forget the darn metaclass
+#             mros = list(reversed(type(obj).__mro__)) + list(reversed(obj.__mro__))
+#         else:
+#             mros = reversed(type(obj).__mro__)
+#         for basecls in mros:
+#             attrs.update(basecls.__dict__)
+#         for name, attr in attrs.items():
+#             if name not in obj_attrs and inspect.isroutine(attr):
+#                 methods[name] = inspect.getdoc(attr)
+#         return methods.items()
+
+#     func.__code__ = get_methods.__code__
+
+
+# patch_get_methods(rpyc.lib.get_methods)
