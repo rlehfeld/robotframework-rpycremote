@@ -103,7 +103,7 @@ class RPyCRobotRemoteServer:
 
             @property
             def stdin(self):
-                """wrapprt to change stdout from remote"""
+                """wrapper to change stdout from remote"""
                 return sys.stdin
 
             @stdin.setter
@@ -112,7 +112,7 @@ class RPyCRobotRemoteServer:
 
             @property
             def stdout(self):
-                """wrapprt to change stdout from remote"""
+                """wrapper to change stdout from remote"""
                 return sys.stdout
 
             @stdout.setter
@@ -121,7 +121,7 @@ class RPyCRobotRemoteServer:
 
             @property
             def stderr(self):
-                """wrapprt to change stderr from remote"""
+                """wrapper to change stderr from remote"""
                 return sys.stderr
 
             @stderr.setter
