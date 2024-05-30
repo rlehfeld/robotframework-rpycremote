@@ -24,7 +24,7 @@ Test Eval
     ${ret}    Call Method    ${math}    ceil    ${2.5}
 
 Test Model
-    ${obj}    Model.Get Model
+    ${obj}    Model.Create Model
     ${ret}    RPyCTest.Model Test    ${obj}
 
 Test Region Scalar

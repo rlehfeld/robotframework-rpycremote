@@ -15,6 +15,11 @@ from rpyc.lib.compat import execute
 from rpyc.utils.server import ThreadedServer
 
 
+logger = logging.getLogger('RPyCRobotRemote.Server')
+logger.setLevel(logging.INFO)
+del logger
+
+
 class RPyCRobotRemoteServer:
     """
     Implements Remote Sever Interface for Robot Framework based on RPyC

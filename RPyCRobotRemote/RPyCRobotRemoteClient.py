@@ -11,6 +11,11 @@ from robot.libraries.DateTime import convert_time
 from robot.api.deco import not_keyword
 
 
+logger = logging.getLogger('RPyCRobotRemote.Client')
+logger.setLevel(logging.INFO)
+del logger
+
+
 @contextmanager
 def redirect(conn):
     """
