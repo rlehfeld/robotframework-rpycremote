@@ -15,9 +15,9 @@ from rpyc.lib.compat import execute
 from rpyc.utils.server import ThreadedServer
 
 
-logger = logging.getLogger('RPyCRobotRemote.Server')
-logger.setLevel(logging.INFO)
-del logger
+LOGGER = logging.getLogger('RPyCRobotRemote.Server')
+LOGGER.setLevel(logging.INFO)
+del LOGGER
 
 
 class RPyCRobotRemoteServer:
