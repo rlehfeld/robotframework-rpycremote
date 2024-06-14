@@ -29,8 +29,8 @@ def redirect(conn):
         orig_stderr = conn.root.stderr
 
         try:
-            conn.root.stdout = sys.stdout
             conn.root.stderr = sys.stderr
+            conn.root.stdout = sys.stdout
             yield
         finally:
             try:

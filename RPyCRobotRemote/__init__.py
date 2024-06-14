@@ -7,6 +7,8 @@ from io import IOBase
 import sys
 import inspect
 import rpyc.lib
+from rpyc.core import consts
+from rpyc.core.protocol import Connection
 from rpyc.utils.server import Server as _RPyCServer
 import robot.utils
 import robot.variables.replacer
@@ -14,6 +16,36 @@ import robot.variables.assigner
 import robot.variables.store
 from .RPyCRobotRemoteClient import RPyCRobotRemoteClient as Client
 from .RPyCRobotRemoteServer import RPyCRobotRemoteServer as Server # noqa, F401
+
+
+def _unbox(self, package):  # boxing
+    """recreate a local object representation of the remote object: if the
+    object is passed by value, just return it; if the object is passed by
+    reference, create a netref to it"""
+    # pylint: disable=protected-access
+    label, value = package
+    if label == consts.LABEL_VALUE:
+        return value
+    if label == consts.LABEL_TUPLE:
+        return tuple(self._unbox(item) for item in value)
+    if label == consts.LABEL_LOCAL_REF:
+        return self._local_objects[value]
+    if label == consts.LABEL_REMOTE_REF:
+        id_pack = (str(value[0]), value[1], value[2])  # so value is a id_pack
+        proxy = self._proxy_cache.get(id_pack)
+        if proxy is not None:
+            # if cached then remote incremented refcount, so sync refcount
+            proxy.____refcount__ += 1
+        else:
+            proxy = self._netref_factory(id_pack)
+            self._proxy_cache[id_pack] = proxy
+        return proxy
+    raise ValueError(f"invalid label {label!r}")
+
+
+Connection._unbox = _unbox  # pylint: disable=protected-access
+del _unbox
+
 
 RPyCRobotRemote = Client
 
