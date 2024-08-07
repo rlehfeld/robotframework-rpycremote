@@ -145,7 +145,7 @@ class RPyCRobotRemoteClient:
     def __doc__(self, /):
         return getattr(self._client.root.library, '__doc__')
 
-    def __getattr__(self, /, name: str):
+    def __getattr__(self, name: str):
         if (name[0:1] != '_' and
                 (not name.startswith('ROBOT_LIBRARY_') or
                  self._client._is_connected)):
