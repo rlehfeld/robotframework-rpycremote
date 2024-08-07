@@ -54,7 +54,7 @@ def redirect_output(func: Callable):
     function = getattr(func, '__func__', func)
 
     @functools.wraps(function)
-    def sync_request(self, /, handler, *args, **kwargs):
+    def sync_request(self, handler, *args, **kwargs):
         with redirect(self):
             return function(self, handler, *args, **kwargs)
 
@@ -69,7 +69,7 @@ class Service(rpyc.Service):
     """Extends the simple rpyc.Service with eval and execute"""
     __slots__ = ()
 
-    def on_connect(self, /, conn):
+    def on_connect(self, conn):
         """called when the connection is established"""
         super().on_connect(conn)
         self._install(conn, conn.root)
