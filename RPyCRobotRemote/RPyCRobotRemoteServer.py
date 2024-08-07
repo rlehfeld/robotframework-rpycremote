@@ -200,6 +200,11 @@ class RPyCRobotRemoteServer:
                 with self._port_file.open('w', encoding='utf-8') as f:
                     print(self.server_port, file=f)
         self._server.start()
+
+        sys.stdin = sys.__stdin__
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+
         if self._port_file and not isinstance(self._port_file, io.TextIOBase):
             self._port_file.unlink()
 

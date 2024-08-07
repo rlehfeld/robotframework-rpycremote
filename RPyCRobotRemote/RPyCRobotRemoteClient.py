@@ -54,7 +54,7 @@ def redirect_output(func: Callable):
     function = getattr(func, '__func__', func)
 
     @functools.wraps(function)
-    def sync_request(self, handler, *args, **kwargs):
+    def sync_request(self, /, handler, *args, **kwargs):
         with redirect(self):
             return function(self, handler, *args, **kwargs)
 
@@ -69,7 +69,7 @@ class Service(rpyc.Service):
     """Extends the simple rpyc.Service with eval and execute"""
     __slots__ = ()
 
-    def on_connect(self, conn):
+    def on_connect(self, /, conn):
         """called when the connection is established"""
         super().on_connect(conn)
         self._install(conn, conn.root)
@@ -90,7 +90,7 @@ class RPyCRobotRemoteClient:
     __slot__ = ()
 
     # pylint: disable=R0913
-    def __init__(self,
+    def __init__(self, /,
                  peer: str = 'localhost',
                  port: int = 18861,
                  ipv6: bool = False,
@@ -142,10 +142,10 @@ class RPyCRobotRemoteClient:
     # pylint: enable=R0913
 
     @property
-    def __doc__(self):
+    def __doc__(self, /):
         return getattr(self._client.root.library, '__doc__')
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, /, name: str):
         if (name[0:1] != '_' and
                 (not name.startswith('ROBOT_LIBRARY_') or
                  self._client._is_connected)):
@@ -160,15 +160,15 @@ class RPyCRobotRemoteClient:
             f'{type(self).__name__!r} object has no attribute {name!r}'
         )
 
-    def remote_eval(self, text):
+    def remote_eval(self, /, text):
         """evaluate arbitrary code (using ``eval``) on remote"""
         return self._client.eval(text)
 
-    def remote_execute(self, text):
+    def remote_execute(self, /, text):
         """execute arbitrary code (using ``exec``) on remote"""
         self._client.execute(text)
 
-    def stop_remote_server(self):
+    def stop_remote_server(self, /):
         """Stop remote server."""
         self._client.root.stop_remote_server()
         # pylint: disable=W0212
@@ -177,7 +177,7 @@ class RPyCRobotRemoteClient:
         self._client.close()
 
     @not_keyword
-    def get_keyword_names(self):
+    def get_keyword_names(self, /):
         """Return keyword names supported by the remote server."""
         if self._keywords_cache is None:
             base = set(self._client.root.get_keyword_names())
