@@ -12,6 +12,7 @@ import rpyc
 # pylint: disable=E0611
 from rpyc.lib.compat import execute
 # pylint: enable=E0611
+from rpyc.utils.helpers import classpartial
 from rpyc.utils.server import ThreadedServer
 
 
@@ -19,6 +20,7 @@ LOGGER = logging.getLogger('RPyCRobotRemote.Server')
 LOGGER.setLevel(logging.INFO)
 del LOGGER
 
+UNDEFINED = object()
 
 class RPyCRobotRemoteServer:
     """
@@ -63,12 +65,34 @@ class RPyCRobotRemoteServer:
                 super().__init__()
                 self.namespace = {}
                 self._library = library
+                self._stdin = UNDEFINED
+                self._stdout = UNDEFINED
+                self._stderr = UNDEFINED
 
             if allow_remote_stop:
                 @staticmethod
                 def stop_remote_server():
                     """stop server from remote"""
                     self.stop()
+
+            def on_connect(self, conn):
+                on_connect = getattr(self._library, '_on_connect', None)
+                if on_connect:
+                    on_connect()
+
+            def on_disconnect(self, conn):
+                if sys.stdin is self._stdin:
+                    sys.stdin = sys.__stdin__
+
+                if sys.stdout is self._stdout:
+                    sys.stdout = sys.__stdout__
+
+                if sys.stderr is self._stderr:
+                    sys.stderr = sys.__stderr__
+
+                on_disconnect = getattr(self._library, '_on_disconnect', None)
+                if on_disconnect:
+                    on_disconnect()
 
             def execute(self, text):
                 """execute arbitrary code (using ``exec``)"""
@@ -113,6 +137,7 @@ class RPyCRobotRemoteServer:
 
             @stdin.setter
             def stdin(self, value: TextIO):
+                self._stdin = value
                 sys.stdin = value
 
             @property
@@ -122,6 +147,7 @@ class RPyCRobotRemoteServer:
 
             @stdout.setter
             def stdout(self, value: TextIO):
+                self._stdout = value
                 sys.stdout = value
 
             @property
@@ -131,6 +157,7 @@ class RPyCRobotRemoteServer:
 
             @stderr.setter
             def stderr(self, value: TextIO):
+                self._stderr = value
                 sys.stderr = value
 
             def _rpyc_setattr(self, name: str, value):
@@ -173,8 +200,9 @@ class RPyCRobotRemoteServer:
             )
         # pylint: enable=duplicate-code
 
+        service = classpartial(Service, library)
         self._server = server(
-            Service(library),
+            service,
             hostname=host,
             port=port,
             ipv6=ipv6,
