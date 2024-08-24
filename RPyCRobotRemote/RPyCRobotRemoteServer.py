@@ -22,6 +22,7 @@ del LOGGER
 
 UNDEFINED = object()
 
+
 class RPyCRobotRemoteServer:
     """
     Implements Remote Sever Interface for Robot Framework based on RPyC
