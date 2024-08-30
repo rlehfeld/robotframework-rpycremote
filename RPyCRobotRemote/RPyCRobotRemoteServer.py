@@ -25,27 +25,32 @@ UNDEFINED = object()
 
 
 class WrapTheadSpecific:
+    """generic wrapper for any kind of object which makes it thread specific"""
+
     def __init__(self, default=None):
         object.__setattr__(self, '_local', threading.local())
         object.__setattr__(self, '_default', default)
         object.__setattr__(self, '__doc__', default.__doc__)
 
-    def __getattr__(self, /, item):
+    def __getattr__(self, item):
         return getattr(self.get_thread_specific_instance(), item)
 
-    def __setattr__(self, /, item, value):
+    def __setattr__(self, item, value):
         return setattr(self.get_thread_specific_instance(), item, value)
 
-    def __delattr__(self, /, item):
+    def __delattr__(self, item):
         return delattr(self.get_thread_specific_instance(), item)
 
     def get_thread_specific_instance(self, /):
+        """return the thread specific instance stored in the wrapper"""
         return getattr(self._local, 'value', self._default)
 
     def set_thread_specific_instance(self, /, obj):
+        """sets the thread specific instance stored in the wrapper"""
         self._local.value = obj
 
     def unset_thread_specific_instance(self, /):
+        """unsets the thread specific instance stored in the wrapper"""
         try:
             del self._local.value
         except AttributeError:
