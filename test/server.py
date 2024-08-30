@@ -41,7 +41,7 @@ server = RPyCRobotRemote.Server(
     Provider(),
     serve=False,
     # port=0,
-    port_file=sys.stdout,
+    port_file=sys.__stdout__,
     server=RPyCRobotRemote.SingleServer
 )
 

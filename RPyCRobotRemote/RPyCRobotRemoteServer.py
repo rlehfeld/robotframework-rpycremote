@@ -6,6 +6,7 @@ import pathlib
 import logging
 import io
 import inspect
+import threading
 from typing import TextIO, Optional, Union
 from robot.libraries.DateTime import convert_time
 import rpyc
@@ -21,6 +22,43 @@ LOGGER.setLevel(logging.INFO)
 del LOGGER
 
 UNDEFINED = object()
+
+
+class WrapTheadSpecific:
+    def __init__(self, default=None):
+        object.__setattr__(self, '_local', threading.local())
+        object.__setattr__(self, '_default', default)
+        object.__setattr__(self, '__doc__', default.__doc__)
+
+    def __getattr__(self, /, item):
+        return getattr(self.get_thread_specific_instance(), item)
+
+    def __setattr__(self, /, item, value):
+        return setattr(self.get_thread_specific_instance(), item, value)
+
+    def __delattr__(self, /, item):
+        return delattr(self.get_thread_specific_instance(), item)
+
+    def get_thread_specific_instance(self, /):
+        return getattr(self._local, 'value', self._default)
+
+    def set_thread_specific_instance(self, /, obj):
+        self._local.value = obj
+
+    def unset_thread_specific_instance(self, /):
+        try:
+            del self._local.value
+        except AttributeError:
+            pass
+
+
+_stdin = WrapTheadSpecific(sys.stdin)
+_stdout = WrapTheadSpecific(sys.stdout)
+_stderr = WrapTheadSpecific(sys.stderr)
+
+sys.stdin = _stdin
+sys.stdout = _stdout
+sys.stderr = _stderr
 
 
 class RPyCRobotRemoteServer:
@@ -66,9 +104,6 @@ class RPyCRobotRemoteServer:
                 super().__init__()
                 self.namespace = {}
                 self._library = library
-                self._stdin = UNDEFINED
-                self._stdout = UNDEFINED
-                self._stderr = UNDEFINED
 
             if allow_remote_stop:
                 @staticmethod
@@ -82,14 +117,9 @@ class RPyCRobotRemoteServer:
                     on_connect()
 
             def on_disconnect(self, conn):
-                if sys.stdin is self._stdin:
-                    sys.stdin = sys.__stdin__
-
-                if sys.stdout is self._stdout:
-                    sys.stdout = sys.__stdout__
-
-                if sys.stderr is self._stderr:
-                    sys.stderr = sys.__stderr__
+                _stdin.unset_thread_specific_instance()
+                _stdout.unset_thread_specific_instance()
+                _stderr.unset_thread_specific_instance()
 
                 on_disconnect = getattr(self._library, '_on_disconnect', None)
                 if on_disconnect:
@@ -134,32 +164,29 @@ class RPyCRobotRemoteServer:
             @property
             def stdin(self):
                 """wrapper to change stdout from remote"""
-                return sys.stdin
+                return _stdin.get_specific_instance()
 
             @stdin.setter
             def stdin(self, value: TextIO):
-                self._stdin = value
-                sys.stdin = value
+                _stdin.set_thread_specific_instance(value)
 
             @property
             def stdout(self):
                 """wrapper to change stdout from remote"""
-                return sys.stdout
+                return _stdout.get_thread_specific_instance()
 
             @stdout.setter
             def stdout(self, value: TextIO):
-                self._stdout = value
-                sys.stdout = value
+                _stdout.set_thread_specific_instance(value)
 
             @property
             def stderr(self):
                 """wrapper to change stderr from remote"""
-                return sys.stderr
+                return _stderr.get_thread_specific_instance()
 
             @stderr.setter
             def stderr(self, value: TextIO):
-                self._stderr = value
-                sys.stderr = value
+                _stderr.set_thread_specific_instance(value)
 
             def _rpyc_setattr(self, name: str, value):
                 if name in ('stdin', 'stdout', 'stderr'):
@@ -229,10 +256,6 @@ class RPyCRobotRemoteServer:
                 with self._port_file.open('w', encoding='utf-8') as f:
                     print(self.server_port, file=f)
         self._server.start()
-
-        sys.stdin = sys.__stdin__
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
 
         if self._port_file and not isinstance(self._port_file, io.TextIOBase):
             self._port_file.unlink()
