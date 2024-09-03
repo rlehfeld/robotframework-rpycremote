@@ -61,8 +61,8 @@ class SingleServer(_RPyCServer):
         """accept method"""
         try:
             self._authenticate_and_serve_client(sock)
-        finally:
-            pass
+        except Exception as e:
+            self.logger.info(f'Exception during handling connection: {e!r}')
 
 
 # work around problems with is_list_like and remote tuples objects
