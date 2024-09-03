@@ -61,8 +61,8 @@ class SingleServer(_RPyCServer):
         """accept method"""
         try:
             self._authenticate_and_serve_client(sock)
-        except BaseException as e:  # disable=broad-exception-caught
-            self.logger.info(  # disable=logging-fstring-interpolation
+        except BaseException as e:  # pylint: disable=broad-exception-caught
+            self.logger.info(  # pylint: disable=logging-fstring-interpolation
                 f'Exception during handling connection: {e!r}'
             )
 
