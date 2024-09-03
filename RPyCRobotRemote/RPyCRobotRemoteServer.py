@@ -27,11 +27,6 @@ UNDEFINED = object()
 class WrapTheadSpecific:
     """generic wrapper for any kind of object which makes it thread specific"""
 
-    # defined in object base class. To complete the wrapper, we must
-    # define all of these additionally
-    # ['__getattribute__', '__init_subclass__',
-    #  '__reduce__', '__reduce_ex__']
-
     def __init__(self, default=None):
         super().__setattr__('_local', threading.local())
         super().__setattr__('_default', default)
@@ -71,6 +66,12 @@ class WrapTheadSpecific:
 
     def __delattr__(self, item):
         return delattr(self.get_thread_specific_instance(), item)
+
+    def __reduce__(self):
+        return self.get_thread_specific_instance().__reduce__()
+
+    def __reduce_ex__(self, protocol):
+        return self.get_thread_specific_instance().__reduce_ex__(protocol)
 
     def __format__(self, format_spec):
         return self.get_thread_specific_instance().__format__(format_spec)
