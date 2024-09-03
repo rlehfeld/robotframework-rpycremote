@@ -27,10 +27,45 @@ UNDEFINED = object()
 class WrapTheadSpecific:
     """generic wrapper for any kind of object which makes it thread specific"""
 
+    # defined in object base class. To complete the wrapper, we must
+    # define all of these additionally
+    # ['__eq__', '__format__', '__ge__', '__getattribute__', '__gt__',
+    #  '__init_subclass__', '__le__', '__lt__', '__ne__' '__reduce__',
+    #  '__reduce_ex__', ]
+
     def __init__(self, default=None):
-        object.__setattr__(self, '_local', threading.local())
-        object.__setattr__(self, '_default', default)
-        object.__setattr__(self, '__doc__', default.__doc__)
+        super().__setattr__('_local', threading.local())
+        super().__setattr__('_default', default)
+
+    @property
+    def __doc__(self, /):
+        return self.get_thread_specific_instance().__doc__
+
+    @property
+    def __match_args__(self, /):
+        return self.get_thread_specific_instance().__match_args__
+
+    @property
+    def __class__(self, /):
+        return self.get_thread_specific_instance().__class__
+
+    def __subclasshook__(self, sub):
+        return issubclass(self.get_thread_specific_instance(), sub)
+
+    def __subclasscheck__(self, sub):
+        return issubclass(self.get_thread_specific_instance(), sub)
+
+    def __dir__(self):
+        return dir(self.get_thread_specific_instance())
+
+    def __hash__(self):
+        return hash(self.get_thread_specific_instance())
+
+    def __str__(self):
+        return str(self.get_thread_specific_instance())
+
+    def __repr__(self):
+        return repr(self.get_thread_specific_instance())
 
     def __getattr__(self, item):
         return getattr(self.get_thread_specific_instance(), item)
