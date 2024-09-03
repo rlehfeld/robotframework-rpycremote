@@ -29,9 +29,8 @@ class WrapTheadSpecific:
 
     # defined in object base class. To complete the wrapper, we must
     # define all of these additionally
-    # ['__eq__', '__format__', '__ge__', '__getattribute__', '__gt__',
-    #  '__init_subclass__', '__le__', '__lt__', '__ne__' '__reduce__',
-    #  '__reduce_ex__', ]
+    # ['__getattribute__', '__init_subclass__',
+    #  '__reduce__', '__reduce_ex__']
 
     def __init__(self, default=None):
         super().__setattr__('_local', threading.local())
@@ -50,9 +49,6 @@ class WrapTheadSpecific:
         return self.get_thread_specific_instance().__class__
 
     def __subclasshook__(self, sub):
-        return issubclass(self.get_thread_specific_instance(), sub)
-
-    def __subclasscheck__(self, sub):
         return issubclass(self.get_thread_specific_instance(), sub)
 
     def __dir__(self):
@@ -75,6 +71,27 @@ class WrapTheadSpecific:
 
     def __delattr__(self, item):
         return delattr(self.get_thread_specific_instance(), item)
+
+    def __format__(self, format_spec):
+        return self.get_thread_specific_instance().__format__(format_spec)
+
+    def __lt__(self, other):
+        return self.get_thread_specific_instance().__lt__(other)
+
+    def __le__(self, other):
+        return self.get_thread_specific_instance().__le__(other)
+
+    def __eq__(self, other):
+        return self.get_thread_specific_instance().__eq__(other)
+
+    def __ne__(self, other):
+        return self.get_thread_specific_instance().__ne__(other)
+
+    def __gt__(self, other):
+        return self.get_thread_specific_instance().__gt__(other)
+
+    def __ge__(self, other):
+        return self.get_thread_specific_instance().__ge__(other)
 
     def get_thread_specific_instance(self, /):
         """return the thread specific instance stored in the wrapper"""
