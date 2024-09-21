@@ -92,7 +92,7 @@ class RPyCRobotRemoteClient:
     # pylint: disable=R0913
     def __init__(self, /,
                  peer: str = 'localhost',
-                 port: int = 18861,
+                 port: int = 18861, *,
                  ipv6: bool = False,
                  timeout=None,
                  logger=None,
