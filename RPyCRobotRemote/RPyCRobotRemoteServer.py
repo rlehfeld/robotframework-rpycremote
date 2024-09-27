@@ -133,7 +133,7 @@ class RPyCRobotRemoteServer:
                  serve: bool = True,
                  allow_remote_stop: bool = True,
                  ipv6: bool = False,
-                 authenticator: Optional[Callable],
+                 authenticator: Optional[Callable] = None,
                  timeout=None,
                  logger=None,
                  server=None,
