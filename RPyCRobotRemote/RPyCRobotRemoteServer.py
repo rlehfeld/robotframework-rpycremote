@@ -8,6 +8,7 @@ import io
 import inspect
 import threading
 from typing import TextIO, Optional, Union
+from collections.abc import Callable
 from robot.libraries.DateTime import convert_time
 import rpyc
 # pylint: disable=E0611
@@ -132,6 +133,7 @@ class RPyCRobotRemoteServer:
                  serve: bool = True,
                  allow_remote_stop: bool = True,
                  ipv6: bool = False,
+                 authenticator: Optional[Callable],
                  timeout=None,
                  logger=None,
                  server=None,
@@ -292,6 +294,7 @@ class RPyCRobotRemoteServer:
             hostname=host,
             port=port,
             ipv6=ipv6,
+            authenticator=authenticator,
             auto_register=False,
             logger=logger,
             protocol_config=config,
