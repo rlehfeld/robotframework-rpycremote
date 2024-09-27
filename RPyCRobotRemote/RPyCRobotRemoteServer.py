@@ -124,7 +124,7 @@ class RPyCRobotRemoteServer:
     """
     Implements Remote Sever Interface for Robot Framework based on RPyC
     """
-    # pylint: disable=R0913
+    # pylint: disable=R0913,R0914
     def __init__(self,  # noqa, C901 allow higher complexity here
                  library,
                  host: Optional[str] = 'localhost',
@@ -302,7 +302,7 @@ class RPyCRobotRemoteServer:
 
         if serve:
             self.serve()
-    # pylint: enable=R0913
+    # pylint: enable=R0913,R0914
 
     def stop(self):
         """stop serving requests"""
