@@ -4,10 +4,6 @@ __init__.py for RPyCRobotRemote
 from collections.abc import Iterable
 from collections import UserString
 from io import IOBase
-import sys
-import inspect
-import rpyc.lib
-from rpyc.core import consts
 from rpyc.utils.server import Server as _RPyCServer
 import robot.utils
 import robot.variables.replacer
