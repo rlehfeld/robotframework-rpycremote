@@ -8,6 +8,7 @@ from typing import Callable
 from contextlib import contextmanager
 import rpyc
 from robot.libraries.DateTime import convert_time
+from robot.api import logger as robotapilogger
 from robot.api.deco import not_keyword
 
 
@@ -27,15 +28,18 @@ def redirect(conn):
         # pylint: enable=W0212
         orig_stdout = conn.root.stdout
         orig_stderr = conn.root.stderr
+        orig_robotapilogwriter = conn.root.robotapilogwriter
 
         try:
             conn.root.stderr = sys.stderr
             conn.root.stdout = sys.stdout
+            conn.root.robotapilogwriter = robotapilogger.write
             yield
         finally:
             try:
                 conn.root.stdout = orig_stdout
                 conn.root.stderr = orig_stderr
+                conn.root.robotapilogwriter = orig_robotapilogwriter
             except EOFError:
                 pass
             # pylint: disable=W0212

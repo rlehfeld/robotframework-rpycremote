@@ -9,6 +9,7 @@ import inspect
 import threading
 from typing import TextIO, Optional, Union
 from collections.abc import Callable
+from robot.api import logger as robotapilogger
 from robot.libraries.DateTime import convert_time
 import rpyc
 # pylint: disable=E0611
@@ -114,11 +115,12 @@ class WrapTheadSpecific:
 _stdin = WrapTheadSpecific(sys.stdin)
 _stdout = WrapTheadSpecific(sys.stdout)
 _stderr = WrapTheadSpecific(sys.stderr)
-
 sys.stdin = _stdin
 sys.stdout = _stdout
 sys.stderr = _stderr
 
+_robotapilogwriter = WrapTheadSpecific(robotapilogger.write)
+robotapilogger.write = _robotapilogwriter
 
 class RPyCRobotRemoteServer:
     """
@@ -248,8 +250,17 @@ class RPyCRobotRemoteServer:
             def stderr(self, value: TextIO):
                 _stderr.set_thread_specific_instance(value)
 
+            @property
+            def robotapilogwriter(self):
+                """wrapper to change robot.api.logger.write from remote"""
+                return _robotapilogwriter.get_thread_specific_instance()
+
+            @stdout.setter
+            def robotapilogwriter(self, value: Callable):
+                _robotapilogwriter.set_thread_specific_instance(value)
+
             def _rpyc_setattr(self, name: str, value):
-                if name in ('stdin', 'stdout', 'stderr'):
+                if name in ('stdin', 'stdout', 'stderr', 'robotapilogwriter'):
                     return setattr(self, name, value)
                 return super()._rpyc_setattr(name, value)
 
