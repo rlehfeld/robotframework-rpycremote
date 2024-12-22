@@ -3,9 +3,9 @@ Sample service Provide() used for testing RPyCRobot client and server
 """
 import numbers
 from collections import namedtuple
+from robot.api import logger
 from robot.api.deco import keyword, not_keyword
 from Model import DummyModel
-from robot.api import logger
 
 
 class Region(namedtuple('Region', 'x y width height')):
