@@ -75,6 +75,9 @@ class WrapTheadSpecific:
     def __reduce_ex__(self, protocol):
         return self.get_thread_specific_instance().__reduce_ex__(protocol)
 
+    def __call__(self, *args, **kwargs):
+        return self.get_thread_specific_instance().__call__(*args, **kwargs)
+
     def __format__(self, format_spec):
         return self.get_thread_specific_instance().__format__(format_spec)
 
