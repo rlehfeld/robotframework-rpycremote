@@ -122,6 +122,7 @@ sys.stderr = _stderr
 _robotapilogwriter = WrapTheadSpecific(robotapilogger.write)
 robotapilogger.write = _robotapilogwriter
 
+
 class RPyCRobotRemoteServer:
     """
     Implements Remote Sever Interface for Robot Framework based on RPyC
@@ -255,7 +256,7 @@ class RPyCRobotRemoteServer:
                 """wrapper to change robot.api.logger.write from remote"""
                 return _robotapilogwriter.get_thread_specific_instance()
 
-            @stdout.setter
+            @robotapilogwriter.setter
             def robotapilogwriter(self, value: Callable):
                 _robotapilogwriter.set_thread_specific_instance(value)
 
