@@ -7,6 +7,7 @@ from robot.api.deco import keyword, not_keyword
 from Model import DummyModel
 from robot.api import logger
 
+
 class Region(namedtuple('Region', 'x y width height')):
     """
     namedtuple to reproduce problem in list assignment
