@@ -76,7 +76,7 @@ class WrapTheadSpecific:
         return self.get_thread_specific_instance().__reduce_ex__(protocol)
 
     def __call__(self, *args, **kwargs):
-        return self.get_thread_specific_instance().__call__(*args, **kwargs)
+        return self.get_thread_specific_instance()(*args, **kwargs)
 
     def __format__(self, format_spec):
         return self.get_thread_specific_instance().__format__(format_spec)
@@ -186,6 +186,7 @@ class RPyCRobotRemoteServer:
                 _stdin.unset_thread_specific_instance()
                 _stdout.unset_thread_specific_instance()
                 _stderr.unset_thread_specific_instance()
+                _robotapilogwriter.unset_thread_specific_instance()
 
                 on_disconnect = getattr(self._library, '_on_disconnect', None)
                 if on_disconnect:

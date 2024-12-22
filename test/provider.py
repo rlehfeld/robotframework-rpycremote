@@ -5,7 +5,7 @@ import numbers
 from collections import namedtuple
 from robot.api.deco import keyword, not_keyword
 from Model import DummyModel
-
+from robot.api import logger
 
 class Region(namedtuple('Region', 'x y width height')):
     """
@@ -49,6 +49,7 @@ class Provider:
         def __call__(self, *args, **kwargs):
             """callable object"""
             print(f'called __call__({args}, {kwargs})')
+            logger.console('called and message to console')
             return '__call__'
 
         def method(self, *args, **kwargs):
