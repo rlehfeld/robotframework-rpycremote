@@ -77,6 +77,17 @@ class Service(rpyc.Service):
         """called when the connection is established"""
         super().on_connect(conn)
         self._install(conn, conn.root)
+        # pylint: disable=W0212
+        conn._is_connected = True
+        conn._is_redirected = False
+        # pylint: enable=W0212
+
+    def on_disconnect(self, conn):
+        # pylint: disable=W0212
+        conn._is_connected = True
+        conn._is_redirected = False
+        # pylint: enable=W0212
+        super().on_disonnect(conn)
 
     @staticmethod
     def _install(conn, slave):
@@ -140,8 +151,6 @@ class RPyCRobotRemoteClient:
 
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
-        self._client._is_connected = True
-        self._client._is_redirected = False
         self._client.sync_request = redirect_output(self._client.sync_request)
     # pylint: enable=R0913
 
@@ -174,7 +183,10 @@ class RPyCRobotRemoteClient:
 
     def stop_remote_server(self, /):
         """Stop remote server."""
-        self._client.root.stop_remote_server()
+        try:
+            self._client.root.stop_remote_server()
+        except EOFError:
+            pass
         # pylint: disable=W0212
         self._client._is_connected = False
         # pylint: enable=W0212
