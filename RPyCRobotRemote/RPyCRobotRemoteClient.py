@@ -84,7 +84,7 @@ class Service(rpyc.Service):
 
     def on_disconnect(self, conn):
         # pylint: disable=W0212
-        conn._is_connected = True
+        conn._is_connected = False
         conn._is_redirected = False
         # pylint: enable=W0212
         super().on_disconnect(conn)
