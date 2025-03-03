@@ -87,7 +87,7 @@ class Service(rpyc.Service):
         conn._is_connected = True
         conn._is_redirected = False
         # pylint: enable=W0212
-        super().on_disonnect(conn)
+        super().on_disconnect(conn)
 
     @staticmethod
     def _install(conn, slave):
