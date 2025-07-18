@@ -4,33 +4,19 @@ __init__.py for RPyCRobotRemote
 from collections.abc import Iterable
 from collections import UserString
 from io import IOBase
-from rpyc.utils.server import Server as _RPyCServer
 import robot.utils
 import robot.variables.replacer
 import robot.variables.assigner
 import robot.variables.store
 from .RPyCRobotRemoteClient import RPyCRobotRemoteClient as Client
-from .RPyCRobotRemoteServer import RPyCRobotRemoteServer as Server # noqa, F401
+from .RPyCRobotRemoteServer import (  # noqa: F401
+    RPyCRobotRemoteServer as Server,
+    SingleServer,
+    ThreadedServer,
+)
 
 
 RPyCRobotRemote = Client
-
-
-class SingleServer(_RPyCServer):
-    """
-    A server that handles a single connection (blockingly)
-
-    Parameters: see :class:`rpyc.utils.server.Server`
-    """
-
-    def _accept_method(self, sock):
-        """accept method"""
-        try:
-            self._authenticate_and_serve_client(sock)
-        except BaseException as e:  # pylint: disable=broad-exception-caught
-            self.logger.info(  # pylint: disable=logging-fstring-interpolation
-                f'Exception during handling connection: {e!r}'
-            )
 
 
 # work around problems with is_list_like and remote tuples objects

@@ -14,9 +14,74 @@ from robot.libraries.DateTime import convert_time
 import rpyc
 # pylint: disable=E0611
 from rpyc.lib.compat import execute
+from rpyc.lib import spawn
 # pylint: enable=E0611
 from rpyc.utils.helpers import classpartial
-from rpyc.utils.server import ThreadedServer
+from rpyc.utils.server import Server as _RPyCServer
+
+
+class SingleServer(_RPyCServer):
+    """
+    A server that handles a single connection (blockingly)
+
+    Parameters: see :class:`rpyc.utils.server.Server`
+    """
+
+    def _accept_method(self, sock):
+        """accept method"""
+        try:
+            self._authenticate_and_serve_client(sock)
+        except BaseException as e:  # pylint: disable=broad-exception-caught
+            self.logger.info(  # pylint: disable=logging-fstring-interpolation
+                f'Exception during handling connection: {e!r}'
+            )
+
+
+class ThreadedServer(_RPyCServer):
+    """
+    A server that spawns a thread for each connection. Works on any platform
+    that supports threads.
+
+    Parameters: see :class:`rpyc.utils.server.Server`
+    """
+    def __init__(self, *args, **kwargs):
+        self._cond = threading.Condition()
+        self._workers = []
+        self._terminated = []
+        super().__init__(*args, **kwargs)
+
+    def close(self):
+        '''closes a ThreadPoolServer. In particular, joins the thread pool.'''
+        self.active = False
+        # cleanup thread pool : first fill the pool with None fds so that all
+        # threads exit the blocking get on the queue of active connections.
+        # Then join the threads
+        with self._cond:
+            self._cond.wait_for(lambda: not self._workers)
+            for w in self._terminated:
+                w.join()
+
+        # close parent server
+        super().close()
+
+    def _accept_method(self, sock):
+        def authenticate_and_serve_client(sock):
+            try:
+                self._authenticate_and_serve_client(sock)
+            finally:
+                with self._cond:
+                    self._workers.remove(threading.current_thread())
+                    self._terminated.append(threading.current_thread())
+                    if not self._workers:
+                        self._cond.notify()
+
+        with self._cond:
+            terminated, self._terminated = self._terminated, []
+            for w in terminated:
+                w.join()
+            self._workers.append(
+                spawn(authenticate_and_serve_client, sock)
+            )
 
 
 LOGGER = logging.getLogger('RPyCRobotRemote.Server')
