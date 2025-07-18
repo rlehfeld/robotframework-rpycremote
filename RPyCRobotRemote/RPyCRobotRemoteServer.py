@@ -52,17 +52,13 @@ class ThreadedServer(_RPyCServer):
 
     def close(self):
         '''closes a ThreadPoolServer. In particular, joins the thread pool.'''
-        self.active = False
-        # cleanup thread pool : first fill the pool with None fds so that all
-        # threads exit the blocking get on the queue of active connections.
-        # Then join the threads
+        # close parent server
+        super().close()
+        # join the threads
         with self._cond:
             self._cond.wait_for(lambda: not self._workers)
             for w in self._terminated:
                 w.join()
-
-        # close parent server
-        super().close()
 
     def _accept_method(self, sock):
         def authenticate_and_serve_client(sock):
