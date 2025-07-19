@@ -3,6 +3,7 @@ Sample service Provide() used for testing RPyCRobot client and server
 """
 import numbers
 from collections import namedtuple
+from typing import Set
 from robot.api import logger
 from robot.api.deco import keyword, not_keyword
 from Model import DummyModel
@@ -80,7 +81,7 @@ class Provider:
         print(f'from remote {b} {args=}')
         return a, c
 
-    def get_region_set(self) -> set[Region]:
+    def get_region_set(self) -> Set[Region]:
         """keyword which return a region"""
         return set(Region(1, 2, 3, 4))
 
