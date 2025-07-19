@@ -1,8 +1,6 @@
 """
 Sample service Provide() used for testing RPyCRobot client and server
 """
-import numbers
-from collections import namedtuple
 from typing import Set
 from robot.api import logger
 from robot.api.deco import keyword, not_keyword
@@ -24,12 +22,13 @@ class Region:
 
     def __repr__(self):
         return (
-            f'{type(self).__name__('
+            f'{type(self).__name__}('
             f'{self.x!r}, '
             f'{self.y!r}, '
             f'{self.width!r}, '
             f'{self.height!r})'
         )
+
 
 class Provider:
     """dummy test implementation"""
