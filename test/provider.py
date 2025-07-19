@@ -93,11 +93,11 @@ class Provider:
 
     def get_region_set(self) -> Set[Region]:
         """keyword which return a region"""
-        return set(Region(1, 2, 3, 4))
+        return set(Region(x=1, y=2, width=3, height=4))
 
     def get_region(self) -> Region:
         """keyword which return a region"""
-        return Region(1, 2, 3, 4)
+        return Region(x=1, y=2, width=3, height=4)
 
     def get_dictionary(self):
         """keyword which return a region"""
