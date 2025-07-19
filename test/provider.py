@@ -9,16 +9,27 @@ from robot.api.deco import keyword, not_keyword
 from Model import DummyModel
 
 
-class Region(namedtuple('Region', 'x y width height')):
+class Region:
     """
-    namedtuple to reproduce problem in list assignment
-    with robot framework
+    Region class
     """
-    def __new__(cls, *args):
-        if not all(isinstance(x, numbers.Integral) for x in args):
-            raise TypeError('all parameters must be of type int')
-        return super(Region, cls).__new__(cls, *args)
 
+    __slots__ = ('x', 'y', 'width', 'height')
+
+    def __init__(self, /, *, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    def __repr__(self):
+        return (
+            f'{type(self).__name__('
+            f'{self.x!r}, '
+            f'{self.y!r}, '
+            f'{self.width!r}, '
+            f'{self.height!r})'
+        )
 
 class Provider:
     """dummy test implementation"""
