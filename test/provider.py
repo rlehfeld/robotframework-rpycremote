@@ -80,7 +80,11 @@ class Provider:
         print(f'from remote {b} {args=}')
         return a, c
 
-    def get_region(self):
+    def get_region_set(self) -> set[Region]:
+        """keyword which return a region"""
+        return set(Region(1, 2, 3, 4))
+
+    def get_region(self) -> Region:
         """keyword which return a region"""
         return Region(1, 2, 3, 4)
 
