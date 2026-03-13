@@ -147,7 +147,6 @@ class RPyCRobotRemoteClient:
             config=config,
             ipv6=ipv6,
             keepalive=True,
-            nodelay=True,
         )
 
         # automatic redirect stdout + stderr from remote during
