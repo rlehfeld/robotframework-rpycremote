@@ -292,7 +292,7 @@ class RPyCRobotRemoteServer:
             @property
             def stdin(self):
                 """wrapper to change stdout from remote"""
-                return _stdin.get_specific_instance()
+                return _stdin.get_thread_specific_instance()
 
             @stdin.setter
             def stdin(self, value: TextIO):
