@@ -64,7 +64,7 @@ def redirect_output(func: Callable):
 
     if this:
         # pylint: disable=E1120
-        return sync_request.__get__(this, func.__class__)
+        return sync_request.__get__(this, type(this))
         # pylint: enable=E1120
     return sync_request
 
@@ -196,16 +196,17 @@ class RPyCRobotRemoteClient:
     def get_keyword_names(self, /):
         """Return keyword names supported by the remote server."""
         if self._keywords_cache is None:
-            base = set(self._client.root.get_keyword_names())
-            attributes = [(name, getattr(self, name))
-                          for name in dir(self) if name[0:1] != '_']
-            self._keywords_cache = tuple(
-                sorted(
-                    base | {
-                        name for name, value in attributes
-                        if (callable(value) and
-                            not getattr(value, 'robot_not_keyword', False))
-                    }
+            with redirect(self._client):
+                base = set(self._client.root.get_keyword_names())
+                attributes = [(name, getattr(self, name))
+                              for name in dir(self) if name[0:1] != '_']
+                self._keywords_cache = tuple(
+                    sorted(
+                        base | {
+                            name for name, value in attributes
+                            if (callable(value) and
+                                not getattr(value, 'robot_not_keyword', False))
+                        }
+                    )
                 )
-            )
         return self._keywords_cache
