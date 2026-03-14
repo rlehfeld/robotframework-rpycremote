@@ -122,9 +122,10 @@ class RPyCRobotRemoteClient:
             instance = self
 
             def imported(self, import_type, name, attributes, /):
-                print(f'in imported {import_type!r} {name=!r}, {attributes=!r}', file=sys.__stderr__)
-                if (attributes['originalname'] == type(self.instance).__name__):
-                    print('library_import self', file=sys.__stderr__)
+                print(f'in imported {import_type!r} {name=!r}, {attributes=!r}', file=sys.__stdout__)
+                if (import_type == 'Library' and
+                    attributes['source'] == sys.moduels[__name__].__file__):
+                    print('library_import self', file=sys.__stdout__)
                     if self.instance._client._is_connected:
                         self.instance._client._is_redirected = False
                     LOGGER.unregister_logger(self)
