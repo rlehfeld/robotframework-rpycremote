@@ -118,7 +118,7 @@ class RPyCRobotRemoteClient:
             __slot__ = ()
 
             @staticmethod
-            def library_import(name, attributes, /):)
+            def library_import(name, attributes, /):
                 return self._library_import(name, attributes)
 
             @staticmethod
