@@ -101,7 +101,7 @@ class RPyCRobotRemoteClient:
     Implements Remote Client Interface for Robot Framework based on RPyC
     """
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    ROBOT_LISTENER_API_VERSION = 3
+    ROBOT_LISTENER_API_VERSION = 2
 
     __slot__ = ('ROBOT_LIBRARY_LISTENER', )
 
@@ -156,9 +156,9 @@ class RPyCRobotRemoteClient:
     # pylint: enable=R0913
 
     @not_keyword
-    def library_import(self, library, importer, /):
+    def library_import(self, name, attributes, /):
         print('in library_import', file=sys.__stderr__)
-        if library.instance is self:
+        if (attributes['originalname'] == self.__name__):
             self.ROBOT_LIBRARY_LISTENER = None
             print('library_import self', file=sys.__stderr__)
             if self._client._is_connected:
