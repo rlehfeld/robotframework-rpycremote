@@ -10,7 +10,11 @@ import rpyc
 from robot.libraries.DateTime import convert_time
 from robot.api import logger as robotapilogger
 from robot.api.deco import not_keyword
-
+from robot.output import LOGGER
+try:
+    from robot.output.loggerapi import LoggerApi
+except ImportError:
+    LoggerApi = object
 
 logger = logging.getLogger('RPyCRobotRemote.Client')
 logger.setLevel(logging.INFO)
@@ -112,20 +116,20 @@ class RPyCRobotRemoteClient:
                  timeout=None,
                  logger=None,
                  **rpyc_config):
-        class Listener:
-            ROBOT_LISTENER_API_VERSION = 2
-
+        class Logger(LoggerApi):
             __slot__ = ()
 
-            @staticmethod
-            def library_import(name, attributes, /):
-                return self._library_import(name, attributes)
+            this = self
 
-            @staticmethod
-            def close():
-                return self._close()
+            def imported(self, import_type, name, attributes, /):
+                print(f'in imported {import_type!r} {name=!r}, {attributes=!r}', file=sys.__stderr__)
+                if (attributes['originalname'] == type(this).__name__):
+                    print('library_import self', file=sys.__stderr__)
+                    if this._client._is_connected:
+                        this._client._is_redirected = False
+                    LOGGER.unregister_logger(self)
 
-        self.ROBOT_LIBRARY_LISTENER = Listener()
+        LOGGER.register_logger(Logger())
         self._keywords_cache = None
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Client')
@@ -166,20 +170,6 @@ class RPyCRobotRemoteClient:
         # during handling of sync_request
         self._client.sync_request = redirect_output(self._client.sync_request)
     # pylint: enable=R0913
-
-    @not_keyword
-    def _library_import(self, name, attributes, /):
-        print(f'in library_import {name=}, {attributes=}', file=sys.__stderr__)
-        if (attributes['originalname'] == type(self).__name__):
-            self.ROBOT_LIBRARY_LISTENER = None
-            print('library_import self', file=sys.__stderr__)
-            if self._client._is_connected:
-                self._client._is_redirected = False
-
-    @not_keyword
-    def _close(self, /):
-        if self._client._is_connected:
-            self._client.close()
 
     @property
     def __doc__(self, /):
