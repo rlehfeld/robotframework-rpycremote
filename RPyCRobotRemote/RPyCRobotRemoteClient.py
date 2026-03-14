@@ -166,6 +166,7 @@ class RPyCRobotRemoteClient:
 
     @not_keyword
     def library_import(self, library, importer, /):
+        print('in library_import')
         if library.instance is self:
             print('library_import self')
             if self._client._is_connected:
@@ -175,7 +176,6 @@ class RPyCRobotRemoteClient:
 
     @not_keyword
     def end_suite(self, data, result, /):
-        print('in end_suite')
         self._client._is_redirected = True
 
     @property
