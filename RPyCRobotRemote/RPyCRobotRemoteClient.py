@@ -126,7 +126,7 @@ class RPyCRobotRemoteClient:
             """
             __slot__ = ()
 
-            def imported(self, import_type, name, attributes, /):
+            def imported(self, import_type, name, attributes, /): # noqa: E501 pylint: disable=W0613
                 if (import_type == 'Library' and
                         attributes['source'] == sys.modules[__name__].__file__):
                     # pylint: disable=W0212
