@@ -10,7 +10,6 @@ import rpyc
 from robot.libraries.DateTime import convert_time
 from robot.api import logger as robotapilogger
 from robot.api.deco import not_keyword
-from robot.output import LOGGER
 
 
 logger = logging.getLogger('RPyCRobotRemote.Client')
@@ -104,6 +103,8 @@ class RPyCRobotRemoteClient:
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LISTENER_API_VERSION = 3
 
+    __slot__ = ('ROBOT_LIBRARY_LISTENER', )
+
     # pylint: disable=R0913
     def __init__(self, /,
                  peer: str = 'localhost',
@@ -112,7 +113,7 @@ class RPyCRobotRemoteClient:
                  timeout=None,
                  logger=None,
                  **rpyc_config):
-        LOGGER.register_logger(self)
+        self.ROBOT_LIBRARY_LISTENER = self
         self._keywords_cache = None
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Client')
@@ -158,7 +159,7 @@ class RPyCRobotRemoteClient:
     def library_import(self, library, importer, /):
         print('in library_import', file=sys.__stderr__)
         if library.instance is self:
-            LOGGER.unregister_logger(self)
+            self.ROBOT_LIBRARY_LISTENER = None
             print('library_import self', file=sys.__stderr__)
             if self._client._is_connected:
                 self._client._is_redirected = False
