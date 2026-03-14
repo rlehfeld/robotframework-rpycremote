@@ -10,11 +10,12 @@ import rpyc
 from robot.libraries.DateTime import convert_time
 from robot.api import logger as robotapilogger
 from robot.api.deco import not_keyword
+from robot.output import LOGGER
 
 
-LOGGER = logging.getLogger('RPyCRobotRemote.Client')
-LOGGER.setLevel(logging.INFO)
-del LOGGER
+logger = logging.getLogger('RPyCRobotRemote.Client')
+logger.setLevel(logging.INFO)
+del logger
 
 
 @contextmanager
@@ -101,7 +102,6 @@ class RPyCRobotRemoteClient:
     Implements Remote Client Interface for Robot Framework based on RPyC
     """
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    ROBOT_LISTENER_API_VERSION = 3
 
     __slot__ = ('ROBOT_LIBRARY_LISTENER', )
 
@@ -114,8 +114,8 @@ class RPyCRobotRemoteClient:
                  logger=None,
                  **rpyc_config):
         self.ROBOT_LIBRARY_LISTENER = self
+        LOGGER.register_logger(self)
         self._keywords_cache = None
-
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Client')
 
@@ -157,26 +157,15 @@ class RPyCRobotRemoteClient:
     # pylint: enable=R0913
 
     @not_keyword
-    def close(self, /):
-        if self._client._is_connected:
-            self._client._is_connected = False
-            self._client.close()
-
-    _close = close
-
-    @not_keyword
     def library_import(self, library, importer, /):
         print('in library_import')
         if library.instance is self:
+            LOGGER.unregister_logger(self)
             print('library_import self')
             if self._client._is_connected:
                 self._client._is_redirected = False
 
     _library_import = library_import
-
-    @not_keyword
-    def end_suite(self, data, result, /):
-        self._client._is_redirected = True
 
     @property
     def __doc__(self, /):
