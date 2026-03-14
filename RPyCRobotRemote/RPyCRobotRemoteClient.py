@@ -101,7 +101,6 @@ class RPyCRobotRemoteClient:
     Implements Remote Client Interface for Robot Framework based on RPyC
     """
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    ROBOT_LISTENER_API_VERSION = 2
 
     __slot__ = ('ROBOT_LIBRARY_LISTENER', )
 
@@ -113,7 +112,20 @@ class RPyCRobotRemoteClient:
                  timeout=None,
                  logger=None,
                  **rpyc_config):
-        self.ROBOT_LIBRARY_LISTENER = self
+        class Listener:
+            ROBOT_LISTENER_API_VERSION = 2
+
+            __slot__ = ()
+
+            @staticmethod
+            def library_import(name, attributes, /):)
+                return self._library_import(name, attributes)
+
+            @staticmethod
+            def close():
+                return self._close()
+
+        self.ROBOT_LIBRARY_LISTENER = Listener()
         self._keywords_cache = None
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Client')
@@ -156,22 +168,18 @@ class RPyCRobotRemoteClient:
     # pylint: enable=R0913
 
     @not_keyword
-    def library_import(self, name, attributes, /):
-        print('in library_import', file=sys.__stderr__)
-        if (attributes['originalname'] == self.__name__):
+    def _library_import(self, name, attributes, /):
+        print(f'in library_import {name=}, {attributes=}', file=sys.__stderr__)
+        if (attributes['originalname'] == type(self).__name__):
             self.ROBOT_LIBRARY_LISTENER = None
             print('library_import self', file=sys.__stderr__)
             if self._client._is_connected:
                 self._client._is_redirected = False
 
-    _library_import = library_import
-
     @not_keyword
-    def close(self, /):
+    def _close(self, /):
         if self._client._is_connected:
             self._client.close()
-
-    _close = close
 
     @property
     def __doc__(self, /):
