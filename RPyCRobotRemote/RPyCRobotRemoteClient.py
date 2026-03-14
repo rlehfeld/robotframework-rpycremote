@@ -16,9 +16,9 @@ try:
 except ImportError:
     LoggerApi = object
 
-logger = logging.getLogger('RPyCRobotRemote.Client')
-logger.setLevel(logging.INFO)
-del logger
+log = logging.getLogger('RPyCRobotRemote.Client')
+log.setLevel(logging.INFO)
+del log
 
 
 @contextmanager
@@ -116,18 +116,24 @@ class RPyCRobotRemoteClient:
                  timeout=None,
                  logger=None,
                  **rpyc_config):
+
+        instance = self
+
         class Logger(LoggerApi):
+            """
+            logger class in order to recognize when library is actually
+            completely imported so we can start forwarding of stdout/stderr
+            """
             __slot__ = ()
 
-            instance = self
-
             def imported(self, import_type, name, attributes, /):
-                print(f'in imported {import_type!r} {name=!r}, {attributes=!r}', file=sys.__stdout__)
                 if (import_type == 'Library' and
-                    attributes['source'] == sys.modules[__name__].__file__):
-                    print('library_import self', file=sys.__stdout__)
-                    if self.instance._client._is_connected:
-                        self.instance._client._is_redirected = False
+                        attributes['source'] == sys.modules[__name__].__file__):
+                    # pylint: disable=W0212
+                    print("i was here", file=sys.__stdout__)
+                    if instance._client._is_connected:
+                        instance._client._is_redirected = False
+                    # pylint: enable=W0212
                     LOGGER.unregister_logger(self)
 
         LOGGER.register_logger(Logger())
