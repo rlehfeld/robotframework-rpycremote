@@ -118,6 +118,7 @@ class RPyCRobotRemoteClient:
                  **rpyc_config):
 
         instance = self
+        filepath = sys.modules[__name__].__file__
 
         class Logger(LoggerApi):
             """
@@ -126,9 +127,9 @@ class RPyCRobotRemoteClient:
             """
             __slot__ = ()
 
-            def imported(self, import_type, name, attributes, /): # noqa: E501 pylint: disable=W0613
+            def imported(self, import_type, name, attributes):  # noqa: E501 pylint: disable=W0613
                 if (import_type == 'Library' and
-                        attributes['source'] == sys.modules[__name__].__file__):
+                        attributes['source'] == filepath):
                     # pylint: disable=W0212
                     print("i was here", file=sys.__stdout__)
                     if instance._client._is_connected:
