@@ -79,7 +79,7 @@ class Service(rpyc.Service):
         self._install(conn, conn.root)
         # pylint: disable=W0212
         conn._is_connected = True
-        conn._is_redirected = False
+        conn._is_redirected = True
         # pylint: enable=W0212
 
     def on_disconnect(self, conn):
@@ -101,8 +101,9 @@ class RPyCRobotRemoteClient:
     Implements Remote Client Interface for Robot Framework based on RPyC
     """
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+    ROBOT_LISTENER_API_VERSION = 3
 
-    __slot__ = ()
+    __slot__ = ('ROBOT_LIBRARY_LISTENER', )
 
     # pylint: disable=R0913
     def __init__(self, /,
@@ -112,6 +113,7 @@ class RPyCRobotRemoteClient:
                  timeout=None,
                  logger=None,
                  **rpyc_config):
+        self.ROBOT_LIBRARY_LISTENER = self
         self._keywords_cache = None
 
         if logger is None:
@@ -153,6 +155,28 @@ class RPyCRobotRemoteClient:
         # during handling of sync_request
         self._client.sync_request = redirect_output(self._client.sync_request)
     # pylint: enable=R0913
+
+    @not_keyword
+    def close(self, /):
+        if self._client._is_connected:
+            self._client._is_connected = False
+            self._client.close()
+
+    _close = close
+
+    @not_keyword
+    def library_import(self, library, importer, /):
+        if library.instance is self:
+            print('library_import self')
+            if self._client._is_connected:
+                self._client._is_redirected = False
+
+    _library_import = library_import
+
+    @not_keyword
+    def end_suite(self, data, result, /):
+        print('in end_suite')
+        self._client._is_redirected = True
 
     @property
     def __doc__(self, /):
