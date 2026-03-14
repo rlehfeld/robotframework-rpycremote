@@ -166,6 +166,13 @@ class RPyCRobotRemoteClient:
 
     _library_import = library_import
 
+    @not_keyword
+    def close(self, /):
+        if self._client._is_connected:
+            self._client.close()
+
+    _close = close
+
     @property
     def __doc__(self, /):
         return getattr(self._client.root.library, '__doc__')
