@@ -156,10 +156,10 @@ class RPyCRobotRemoteClient:
 
     @not_keyword
     def library_import(self, library, importer, /):
-        print('in library_import')
+        print('in library_import', file=sys.__stderr__)
         if library.instance is self:
             LOGGER.unregister_logger(self)
-            print('library_import self')
+            print('library_import self', file=sys.__stderr__)
             if self._client._is_connected:
                 self._client._is_redirected = False
 
