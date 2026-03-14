@@ -119,14 +119,14 @@ class RPyCRobotRemoteClient:
         class Logger(LoggerApi):
             __slot__ = ()
 
-            this = self
+            instance = self
 
             def imported(self, import_type, name, attributes, /):
                 print(f'in imported {import_type!r} {name=!r}, {attributes=!r}', file=sys.__stderr__)
-                if (attributes['originalname'] == type(this).__name__):
+                if (attributes['originalname'] == type(self.instance).__name__):
                     print('library_import self', file=sys.__stderr__)
-                    if this._client._is_connected:
-                        this._client._is_redirected = False
+                    if self.instance._client._is_connected:
+                        self.instance._client._is_redirected = False
                     LOGGER.unregister_logger(self)
 
         LOGGER.register_logger(Logger())
