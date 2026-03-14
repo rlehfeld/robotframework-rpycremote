@@ -102,8 +102,7 @@ class RPyCRobotRemoteClient:
     Implements Remote Client Interface for Robot Framework based on RPyC
     """
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-
-    __slot__ = ('ROBOT_LIBRARY_LISTENER', )
+    ROBOT_LISTENER_API_VERSION = 3
 
     # pylint: disable=R0913
     def __init__(self, /,
@@ -113,7 +112,6 @@ class RPyCRobotRemoteClient:
                  timeout=None,
                  logger=None,
                  **rpyc_config):
-        self.ROBOT_LIBRARY_LISTENER = self
         LOGGER.register_logger(self)
         self._keywords_cache = None
         if logger is None:
