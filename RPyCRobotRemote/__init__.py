@@ -1,13 +1,13 @@
 """
 __init__.py for RPyCRobotRemote
 """
-from collections.abc import Iterable
-from collections import UserString
-from io import IOBase
-import robot.utils
-import robot.variables.replacer
-import robot.variables.assigner
-import robot.variables.store
+# from collections.abc import Iterable
+# from collections import UserString
+# from io import IOBase
+# import robot.utils
+# import robot.variables.replacer
+# import robot.variables.assigner
+# import robot.variables.store
 from .RPyCRobotRemoteClient import RPyCRobotRemoteClient as Client
 from .RPyCRobotRemoteServer import (  # noqa: F401
     RPyCRobotRemoteServer as Server,
