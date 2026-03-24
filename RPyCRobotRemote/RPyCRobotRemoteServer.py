@@ -90,6 +90,8 @@ UNDEFINED = object()
 class WrapTheadSpecific:
     """generic wrapper for any kind of object which makes it thread specific"""
 
+    __slots__ = ('_local', '_default')
+
     def __init__(self, default=None):
         super().__setattr__('_local', threading.local())
         super().__setattr__('_default', default)
