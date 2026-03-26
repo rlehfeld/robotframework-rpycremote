@@ -58,8 +58,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ 'ubuntu-latest', 'windows-latest' ]
-        python-version: [ '3.10', '3.11', "3.11", "3.12", "3.13", "3.14", "3.15.0-alpha.5" ]
-        robotframework-version: [ '5.0.1', '6.0.2', '6.1', '7.0', 'latest' ]
+        python-version: [ '3.10', '3.11', "3.11", "3.12", "3.13", "3.14" ]
+        robotframework-version: [ '6.1', '7.0', 'latest' ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
