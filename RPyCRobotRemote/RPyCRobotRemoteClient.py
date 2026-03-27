@@ -127,9 +127,8 @@ class RPyCRobotRemoteClient:
             """
             __slot__ = ()
 
-            def imported(self, import_type, name, attrs):  # noqa: E501 pylint: disable=W0613
-                if (import_type == 'Library' and
-                        attrs['source'] == filepath):
+            def library_import(self, library, importer):
+                if library.instance is instance:
                     # pylint: disable=W0212
                     if instance._client._is_connected:
                         instance._client._is_redirected = False
