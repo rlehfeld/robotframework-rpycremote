@@ -117,24 +117,25 @@ class RPyCRobotRemoteClient:
                  logger=None,
                  **rpyc_config):
 
-        instance = self
+        if LoggerApi is not object:
+            instance = self
 
-        class Logger(LoggerApi):
-            """
-            logger class in order to recognize when library is actually
-            completely imported so we can start forwarding of stdout/stderr
-            """
-            __slot__ = ()
+            class Logger(LoggerApi):
+                """
+                logger class in order to recognize when library is actually
+                completely imported so we can start forwarding of stdout/stderr
+                """
+                __slot__ = ()
 
-            def library_import(self, library, importer):  # noqa: E501 pylint: disable=W0613
-                if library.instance is instance:
-                    # pylint: disable=W0212
-                    if instance._client._is_connected:
-                        instance._client._is_redirected = False
-                    # pylint: enable=W0212
-                    LOGGER.unregister_logger(self)
+                def library_import(self, library, importer):  # noqa: E501 pylint: disable=W0613
+                    if library.instance is instance:
+                        # pylint: disable=W0212
+                        if instance._client._is_connected:
+                            instance._client._is_redirected = False
+                        # pylint: enable=W0212
+                        LOGGER.unregister_logger(self)
 
-        LOGGER.register_logger(Logger())
+            LOGGER.register_logger(Logger())
         self._keywords_cache = None
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Client')
