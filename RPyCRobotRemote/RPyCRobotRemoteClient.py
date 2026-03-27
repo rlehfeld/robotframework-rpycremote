@@ -118,7 +118,6 @@ class RPyCRobotRemoteClient:
                  **rpyc_config):
 
         instance = self
-        filepath = sys.modules[__name__].__file__
 
         class Logger(LoggerApi):
             """
