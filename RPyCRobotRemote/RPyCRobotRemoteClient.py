@@ -83,7 +83,7 @@ class Service(rpyc.Service):
         self._install(conn, conn.root)
         # pylint: disable=W0212
         conn._is_connected = True
-        conn._is_redirected = True
+        conn._is_redirected = LoggerApi is not object
         # pylint: enable=W0212
 
     def on_disconnect(self, conn):
@@ -126,7 +126,7 @@ class RPyCRobotRemoteClient:
             """
             __slot__ = ()
 
-            def library_import(self, library, importer):
+            def library_import(self, library, importer):  # noqa: E501 pylint: disable=W0613
                 if library.instance is instance:
                     # pylint: disable=W0212
                     if instance._client._is_connected:
