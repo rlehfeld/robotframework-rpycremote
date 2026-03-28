@@ -32,8 +32,8 @@ def redirect(conn):
     if current_thread().name not in LOGGING_THREADS:
         yield
     else:
+        alreadyredirected, conn._is_redirected = conn._is_redirected, True  # pylint: disable=W0212
         # pylint: disable=W0212
-        alreadyredirected, conn._is_redirected = conn._is_redirected, True
         if not alreadyredirected and conn._is_connected:
             if conn._bgthread is not None:
                 conn._bgthread.pause()
