@@ -6,11 +6,13 @@ import functools
 import logging
 from typing import Callable
 from contextlib import contextmanager
+from threading import current_thread
 import rpyc
 from robot.libraries.DateTime import convert_time
 from robot.api import logger as robotapilogger
 from robot.api.deco import not_keyword
 from robot.output import LOGGER
+from robot.output.librarylogger import LOGGING_THREADS
 try:
     from robot.output.loggerapi import LoggerApi
 except ImportError:
@@ -26,31 +28,40 @@ def redirect(conn):
     """
     Redirects the other party's ``stdout`` and ``stderr`` to local
     """
-    # pylint: disable=W0212
-    alreadyredirected, conn._is_redirected = conn._is_redirected, True
-    if not alreadyredirected and conn._is_connected:
-        # pylint: enable=W0212
-        orig_stdout = conn.root.stdout
-        orig_stderr = conn.root.stderr
-        orig_robotapilogwriter = conn.root.robotapilogwriter
 
-        try:
-            conn.root.stderr = sys.stderr
-            conn.root.stdout = sys.stdout
-            conn.root.robotapilogwriter = robotapilogger.write
-            yield
-        finally:
-            try:
-                conn.root.stdout = orig_stdout
-                conn.root.stderr = orig_stderr
-                conn.root.robotapilogwriter = orig_robotapilogwriter
-            except EOFError:
-                pass
-            # pylint: disable=W0212
-            conn._is_redirected = False
-            # pylint: enable=W0212
-    else:
+    if current_thread().name not in LOGGING_THREADS:
         yield
+    else:
+        # pylint: disable=W0212
+        alreadyredirected, conn._is_redirected = conn._is_redirected, True
+        if not alreadyredirected and conn._is_connected:
+            if conn._bgthread is not None:
+                conn._bgthread.pause()
+
+            # pylint: enable=W0212
+            orig_stdout = conn.root.stdout
+            orig_stderr = conn.root.stderr
+            orig_robotapilogwriter = conn.root.robotapilogwriter
+
+            try:
+                conn.root.stderr = sys.stderr
+                conn.root.stdout = sys.stdout
+                conn.root.robotapilogwriter = robotapilogger.write
+                yield
+            finally:
+                try:
+                    conn.root.stdout = orig_stdout
+                    conn.root.stderr = orig_stderr
+                    conn.root.robotapilogwriter = orig_robotapilogwriter
+                except EOFError:
+                    pass
+                # pylint: disable=W0212
+                conn._is_redirected = False
+                if conn._bgthread is not None:
+                    conn._bgthread.resume()
+                # pylint: enable=W0212
+        else:
+            yield
 
 
 def redirect_output(func: Callable):
@@ -85,9 +96,13 @@ class Service(rpyc.Service):
         conn._is_connected = True
         conn._is_redirected = LoggerApi is not object
         # pylint: enable=W0212
+        conn._bgthread = rpyc.BgServingThread(conn, active=not conn._is_redirected)
 
     def on_disconnect(self, conn):
         # pylint: disable=W0212
+        if conn._bgthread is not None:
+            conn._bgthread.stop()
+        conn._bgthread = None
         conn._is_connected = False
         conn._is_redirected = False
         # pylint: enable=W0212
@@ -132,6 +147,8 @@ class RPyCRobotRemoteClient:
                         # pylint: disable=W0212
                         if instance._client._is_connected:
                             instance._client._is_redirected = False
+                            if instance._client._bgthread is not None:
+                                instance._client._bgthread.resume()
                         # pylint: enable=W0212
                         LOGGER.unregister_logger(self)
 
@@ -212,6 +229,9 @@ class RPyCRobotRemoteClient:
             pass
         # pylint: disable=W0212
         self._client._is_connected = False
+        if self._client._bgthread is not None:
+            self._client._bgthread.stop()
+            self._client._bgthread = None
         # pylint: enable=W0212
         self._client.close()
 
