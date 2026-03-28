@@ -95,11 +95,11 @@ class Service(rpyc.Service):
         # pylint: disable=W0212
         conn._is_connected = True
         conn._is_redirected = LoggerApi is not object
-        # pylint: enable=W0212
         conn._bgthread = rpyc.BgServingThread(
             conn,
             active=not conn._is_redirected
         )
+        # pylint: enable=W0212
 
     def on_disconnect(self, conn):
         # pylint: disable=W0212
