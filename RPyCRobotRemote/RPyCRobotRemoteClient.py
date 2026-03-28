@@ -6,7 +6,7 @@ import functools
 import logging
 from typing import Callable
 from contextlib import contextmanager
-from threading import current_thread
+from threading import current_thread, _register_atexit as register_atexit
 import rpyc
 from robot.libraries.DateTime import convert_time
 from robot.api import logger as robotapilogger
@@ -135,9 +135,15 @@ class RPyCRobotRemoteClient:
                  logger=None,
                  **rpyc_config):
 
-        if LoggerApi is not object:
-            instance = self
+        instance = self
 
+        class CloseListener:
+            def close(self):
+                instance._disconnect()
+
+        self.ROBOT_LIBRARY_LISTENER = CloseListener()
+
+        if LoggerApi is not object:
             class Logger(LoggerApi):
                 """
                 logger class in order to recognize when library is actually
@@ -195,7 +201,13 @@ class RPyCRobotRemoteClient:
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
         self._client.sync_request = redirect_output(self._client.sync_request)
+
+        register_atexit(self._disconnect)
+
     # pylint: enable=R0913
+
+    def __del__(self, /):
+        self._disconnect()
 
     @property
     def __doc__(self, /):
@@ -230,13 +242,18 @@ class RPyCRobotRemoteClient:
             self._client.root.stop_remote_server()
         except EOFError:
             pass
+        self._disconnect()
+
+    @not_keyword
+    def _disconnect(self, /):
         # pylint: disable=W0212
-        self._client._is_connected = False
-        if self._client._bgthread is not None:
-            self._client._bgthread.stop()
-            self._client._bgthread = None
-        # pylint: enable=W0212
-        self._client.close()
+        if self._client._is_connected:
+            self._client._is_connected = False
+            if self._client._bgthread is not None:
+                self._client._bgthread.stop()
+                self._client._bgthread = None
+            # pylint: enable=W0212
+            self._client.close()
 
     @not_keyword
     def get_keyword_names(self, /):
