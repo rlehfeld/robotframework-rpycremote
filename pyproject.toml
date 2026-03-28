@@ -11,10 +11,16 @@ requires-python = '>=3.7'
 license = {text = 'MIT'}
 keywords = ['robotframework', 'robot-framework', 'rpyc']
 classifiers = [
-    'Programming Language :: Python :: 3',
-    'Environment :: Other Environment',
+    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
     'Operating System :: OS Independent',
+    'Environment :: Other Environment',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 dependencies = [

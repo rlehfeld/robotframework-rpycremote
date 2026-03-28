@@ -1,3 +1,5 @@
+|Version| |Python| |Tests| |License|
+
 RPyC Robot Remote Library
 ============================
 Generic Robot Framework Remote library based on RPyC
@@ -35,3 +37,20 @@ Or add to your ``conda.yaml`` file:
 Usage
 =====
 
+.. Badges:
+
+.. |Version| image::   https://img.shields.io/pypi/v/robotframework-rpycremote.svg?style=flat
+   :target:            https://pypi.org/project/robotframework-rpycremote/
+   :alt:               Version
+
+.. |Python| image::    https://img.shields.io/pypi/pyversions/robotframework-rpycremote.svg?style=flat
+   :target:            https://pypi.org/project/robotframework-rpycremote/#files
+   :alt:               Python Versions
+
+.. |Tests| image::     ../../actions/workflows/pipeline.yml/badge.svg
+   :target:            ../../actions/workflows/pipeline.yml
+   :alt:               Build Status
+
+.. |License| image::   https://img.shields.io/pypi/l/robotframework-rpycremote.svg?style=flat
+   :target:            LICENSE.txt
+   :alt:               License: MIT
