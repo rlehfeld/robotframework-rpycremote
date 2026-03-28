@@ -137,11 +137,15 @@ class RPyCRobotRemoteClient:
 
         instance = self
 
-        class CloseListener:
+        class CloseListener:  # pylint: disable=R0903
+            """
+            Listener class to trigger disconnect and thread termination
+            """
             def close(self):
-                instance._disconnect()
+                """ called by Robot Framework when library will be removed """
+                instance._disconnect()  # pylint: disable=W0212
 
-        self.ROBOT_LIBRARY_LISTENER = CloseListener()
+        self.ROBOT_LIBRARY_LISTENER = CloseListener()  # pylint: disable=C0103
 
         if LoggerApi is not object:
             class Logger(LoggerApi):
