@@ -153,7 +153,6 @@ class RPyCRobotRemoteClient:
         self.ROBOT_LIBRARY_LISTENER = CloseListener()  # pylint: disable=C0103
 
         if LoggerApi is object:
-            print(f'{LOGGER.message=!r}, {LOGGER.log_message=!r}', file=sys.__stderr__)
             is_redirected = False
         else:
             is_redirected = True
