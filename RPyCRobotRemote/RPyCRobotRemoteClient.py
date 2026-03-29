@@ -138,13 +138,13 @@ class RPyCRobotRemoteClient:
         instance = self
 
         class CloseListener:  # pylint: disable=R0903
+            """
+            Listener class to trigger disconnect and thread termination
+            """
             __slots__ = ()
 
             ROBOT_LISTENER_API_VERSION = 3
 
-            """
-            Listener class to trigger disconnect and thread termination
-            """
             def close(self):
                 """ called by Robot Framework when library will be removed """
                 instance._disconnect()  # pylint: disable=W0212
