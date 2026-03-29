@@ -99,5 +99,5 @@ jobs:
       - name: Upload Generated Robot Test Report and Robot Doc
         uses: actions/upload-artifact@v7
         with:
-          name: testreports-${{ matrix.os }}-${{ matrix.python-version }}
+          name: testreports-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.robotframework-version }}
           path: testreports
