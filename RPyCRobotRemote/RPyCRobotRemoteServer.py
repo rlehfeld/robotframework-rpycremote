@@ -187,6 +187,8 @@ sys.stderr = _stderr
 
 _robotapilogwriter = WrapTheadSpecific(robotapilogger.write)
 robotapilogger.write = _robotapilogwriter
+_robotapilogconsole = WrapTheadSpecific(robotapilogger.console)
+robotapilogger.console = _robotapilogconsole
 
 
 class RPyCRobotRemoteServer:
@@ -250,6 +252,7 @@ class RPyCRobotRemoteServer:
                 _stdout.unset_thread_specific_instance()
                 _stderr.unset_thread_specific_instance()
                 _robotapilogwriter.unset_thread_specific_instance()
+                _robotapilogconsole.unset_thread_specific_instance()
 
                 on_disconnect = getattr(self._library, '_on_disconnect', None)
                 if on_disconnect:
@@ -327,8 +330,23 @@ class RPyCRobotRemoteServer:
             def robotapilogwriter(self, value: Callable):
                 _robotapilogwriter.set_thread_specific_instance(value)
 
+            @property
+            def robotapilogconsole(self):
+                """wrapper to change robot.api.logger.write from remote"""
+                return _robotapilogconsole.get_thread_specific_instance()
+
+            @robotapilogconsole.setter
+            def robotapilogconsole(self, value: Callable):
+                _robotapilogconsole.set_thread_specific_instance(value)
+
             def _rpyc_setattr(self, name: str, value):
-                if name in ('stdin', 'stdout', 'stderr', 'robotapilogwriter'):
+                if name in (
+                        'stdin',
+                        'stdout',
+                        'stderr',
+                        'robotapilogwriter',
+                        'robotapilogconsole',
+                ):
                     return setattr(self, name, value)
                 return super()._rpyc_setattr(name, value)
 

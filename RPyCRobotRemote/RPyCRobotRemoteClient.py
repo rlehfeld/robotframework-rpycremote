@@ -42,17 +42,20 @@ def redirect(conn):
             orig_stdout = conn.root.stdout
             orig_stderr = conn.root.stderr
             orig_robotapilogwriter = conn.root.robotapilogwriter
+            orig_robotapilogconsole = conn.root.robotapilogconsole
 
             try:
                 conn.root.stderr = sys.stderr
                 conn.root.stdout = sys.stdout
                 conn.root.robotapilogwriter = robotapilogger.write
+                conn.root.robotapilogconsole = robotapilogger.console
                 yield
             finally:
                 try:
                     conn.root.stdout = orig_stdout
                     conn.root.stderr = orig_stderr
                     conn.root.robotapilogwriter = orig_robotapilogwriter
+                    conn.root.robotapilogconsole = orig_robotapilogconsole
                 except EOFError:
                     pass
                 # pylint: disable=W0212

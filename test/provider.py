@@ -67,7 +67,9 @@ class Provider:
         def __call__(self, *args, **kwargs):
             """callable object"""
             print(f'called __call__({args}, {kwargs})')
-            logger.console('called and message to console')
+            logger.console('called and message only to console')
+            logger.warn('called and warning log')
+            logger.info('called and info message additionally to console', console=True)
             return '__call__'
 
         def method(self, *args, **kwargs):
