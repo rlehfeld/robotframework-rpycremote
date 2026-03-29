@@ -122,10 +122,9 @@ class RPyCRobotRemoteClient:
     """
     Implements Remote Client Interface for Robot Framework based on RPyC
     """
-    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-    ROBOT_LISTENER_API_VERSION = 3
-
     __slot__ = ('ROBOT_LIBRARY_LISTENER', )
+
+    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
 
     # pylint: disable=R0913
     def __init__(self, /,
@@ -139,6 +138,10 @@ class RPyCRobotRemoteClient:
         instance = self
 
         class CloseListener:  # pylint: disable=R0903
+            __slots__ = ()
+
+            ROBOT_LISTENER_API_VERSION = 3
+
             """
             Listener class to trigger disconnect and thread termination
             """
