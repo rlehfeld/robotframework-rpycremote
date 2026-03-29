@@ -94,4 +94,5 @@ jobs:
         run: |
           python test/server.py 2>&1 &
           sleep 3
-          robot test/ 2>&1
+          libdoc RPyCRobotRemote::127.0.0.1::18861 testreports/MyLibrary.html
+          robot -d testreports/ test/ 2>&1
