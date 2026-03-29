@@ -123,6 +123,7 @@ class RPyCRobotRemoteClient:
     Implements Remote Client Interface for Robot Framework based on RPyC
     """
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+    ROBOT_LISTENER_API_VERSION = 3
 
     __slot__ = ('ROBOT_LIBRARY_LISTENER', )
 
