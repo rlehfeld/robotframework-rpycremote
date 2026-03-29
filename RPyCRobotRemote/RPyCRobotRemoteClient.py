@@ -16,7 +16,7 @@ from robot.output.librarylogger import LOGGING_THREADS
 try:
     from robot.output.loggerapi import LoggerApi
 except ImportError:
-    LoggerApi = object
+    LoggerApi = None
 
 log = logging.getLogger('RPyCRobotRemote.Client')
 log.setLevel(logging.INFO)
@@ -152,11 +152,7 @@ class RPyCRobotRemoteClient:
 
         self.ROBOT_LIBRARY_LISTENER = CloseListener()  # pylint: disable=C0103
 
-        if LoggerApi is object:
-            is_redirected = False
-        else:
-            is_redirected = True
-
+        if LoggerApi is not None:
             class Logger(LoggerApi):
                 """
                 logger class in order to recognize when library is actually
@@ -219,7 +215,7 @@ class RPyCRobotRemoteClient:
 
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
-        self._client._is_redirected = is_redirected
+        self._client._is_redirected = LoggerApi is not None
         self._client.sync_request = redirect_output(self._client.sync_request)
 
         register_atexit(self._disconnect)
