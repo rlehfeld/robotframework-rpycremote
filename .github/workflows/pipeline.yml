@@ -96,8 +96,8 @@ jobs:
           sleep 3
           libdoc RPyCRobotRemote::127.0.0.1::18861 testreports/MyLibrary.html
           robot -d testreports/ test/ 2>&1
-       - name: Upload Generated Robot Test Report and Robot Doc
-         uses: upload-artifact@v7
-         with:
-           name: testreports-${{ matrix.os }}-${{ matrix.python-version }}
-           path: testreports
+      - name: Upload Generated Robot Test Report and Robot Doc
+        uses: upload-artifact@v7
+        with:
+          name: testreports-${{ matrix.os }}-${{ matrix.python-version }}
+          path: testreports
