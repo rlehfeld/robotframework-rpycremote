@@ -94,7 +94,7 @@ class Service(rpyc.Service):
         self._install(conn, conn.root)
         # pylint: disable=W0212
         conn._is_connected = True
-        conn._is_redirected = LoggerApi is not object
+        conn._is_redirected = False
         conn._bgthread = rpyc.BgServingThread(
             conn,
             active=not conn._is_redirected
@@ -107,7 +107,7 @@ class Service(rpyc.Service):
             conn._bgthread.stop()
         conn._bgthread = None
         conn._is_connected = False
-        conn._is_redirected = False
+        conn._is_redirected = True
         # pylint: enable=W0212
         super().on_disconnect(conn)
 
@@ -136,6 +136,7 @@ class RPyCRobotRemoteClient:
                  **rpyc_config):
 
         instance = self
+        filepath = sys.modules[__name__].__file__
 
         class CloseListener:  # pylint: disable=R0903
             """
@@ -151,7 +152,12 @@ class RPyCRobotRemoteClient:
 
         self.ROBOT_LIBRARY_LISTENER = CloseListener()  # pylint: disable=C0103
 
-        if LoggerApi is not object:
+        if LoggerApi is object:
+            print(f'{LOGGER.message=!r}, {LOGGER.log_message=!r}', file=sys.__stderr__)
+            is_redirected = False
+        else:
+            is_redirected = True
+
             class Logger(LoggerApi):
                 """
                 logger class in order to recognize when library is actually
@@ -159,15 +165,21 @@ class RPyCRobotRemoteClient:
                 """
                 __slot__ = ()
 
+                def imported(self, import_type: str, name: str, attrs):  # noqa: E501 pylint: disable=W0613
+                    if (import_type == 'Library' and
+                            attrs['source'] == filepath):
+                        self._set_redirect_and_unregister()
+
                 def library_import(self, library, importer):  # noqa: E501 pylint: disable=W0613
                     if library.instance is instance:
-                        # pylint: disable=W0212
-                        if instance._client._is_connected:
-                            instance._client._is_redirected = False
-                            if instance._client._bgthread is not None:
-                                instance._client._bgthread.resume()
-                        # pylint: enable=W0212
-                        LOGGER.unregister_logger(self)
+                        self._set_redirect_and_unregister()
+
+                def _set_redirect_and_unregister(self):
+                    # pylint: disable=W0212
+                    if instance._client._is_connected:
+                        instance._client._is_redirected = False
+                    # pylint: enable=W0212
+                    LOGGER.unregister_logger(self)
 
             LOGGER.register_logger(Logger())
         self._keywords_cache = None
@@ -208,6 +220,7 @@ class RPyCRobotRemoteClient:
 
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
+        self._client._is_redirected = is_redirected
         self._client.sync_request = redirect_output(self._client.sync_request)
 
         register_atexit(self._disconnect)
