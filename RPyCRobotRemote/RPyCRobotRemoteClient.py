@@ -92,8 +92,12 @@ class Service(rpyc.Service):
     """Extends the simple rpyc.Service with eval and execute"""
     __slots__ = ()
 
-    def BgServingThread(self):
+    @property
+    def bgthread(self):
+        """Give access to BgServingThread in current connection"""
+        # pylint: disable=W0212,E1101
         return Connection.current()._bgthread
+        # pylint: enable=W0212,E1101
 
     def on_connect(self, conn):
         """called when the connection is established"""
