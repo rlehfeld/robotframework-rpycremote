@@ -8,6 +8,7 @@ from typing import Callable
 from contextlib import contextmanager
 from threading import current_thread, _register_atexit as register_atexit
 import rpyc
+from rpyc.core.protocol import Connection
 from robot.libraries.DateTime import convert_time
 from robot.api import logger as robotapilogger
 from robot.api.deco import not_keyword
@@ -90,6 +91,9 @@ def redirect_output(func: Callable):
 class Service(rpyc.Service):
     """Extends the simple rpyc.Service with eval and execute"""
     __slots__ = ()
+
+    def BgServingThread(self):
+        return Connection.current()._bgthread
 
     def on_connect(self, conn):
         """called when the connection is established"""
