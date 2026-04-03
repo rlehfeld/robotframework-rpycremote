@@ -6,7 +6,7 @@ name = 'robotframework-rpycremote'
 authors = [
     {name = 'René Lehfeld', email = '54720674+rlehfeld@users.noreply.github.com'},
 ]
-description = 'Robot Framework Remote Library based on RPyC'
+description = 'Robot Framework Remote Library based on RPyC-NG'
 requires-python = '>=3.10'
 license = {text = 'MIT'}
 keywords = ['robotframework', 'robot-framework', 'rpyc']
@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
   'robotframework>=6.1',
-  'rpyc>=6.0.2',
+  'rpyc-ng>=7.0.0',
 ]
 dynamic = ['version', 'readme']
 
