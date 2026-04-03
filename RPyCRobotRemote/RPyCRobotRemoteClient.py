@@ -37,9 +37,7 @@ def redirect(conn):
         # pylint: disable=W0212
         if not alreadyredirected and conn._is_connected:
             if conn._bgthread is not None:
-                print("pausing bgthread", file=sys.__stderr__)
                 conn._bgthread.pause()
-                print("paused bgthread", file=sys.__stderr__)
 
             # pylint: enable=W0212
             orig_stdout = conn.root.stdout
@@ -64,9 +62,7 @@ def redirect(conn):
                 # pylint: disable=W0212
                 conn._is_redirected = False
                 if conn._bgthread is not None:
-                    print("resuming bgthread", file=sys.__stderr__)
                     conn._bgthread.resume()
-                    print("resumed bgthread", file=sys.__stderr__)
                 # pylint: enable=W0212
         else:
             yield
@@ -118,11 +114,9 @@ class Service(rpyc.Service):
 
     def on_disconnect(self, conn):
         # pylint: disable=W0212
-        if conn._bgthread is not None:
-            print("1 stopping bgthread", file=sys.__stderr__)
-            conn._bgthread.stop()
-            print("1 stopped bgthread", file=sys.__stderr__)
-            conn._bgthread = None
+        bgthread, conn._bgthread = conn._bgthread, None
+        if bgthread is not None:
+            bgthread.stop()
         conn._is_connected = False
         conn._is_redirected = True
         # pylint: enable=W0212
@@ -282,11 +276,9 @@ class RPyCRobotRemoteClient:
         # pylint: disable=W0212
         if self._client._is_connected:
             self._client._is_connected = False
-            if self._client._bgthread is not None:
-                print("2 stopping bgthread", file=sys.__stderr__)
-                self._client._bgthread.stop()
-                print("2 stopped bgthread", file=sys.__stderr__)
-                self._client._bgthread = None
+            bgthread, self._client._bgthread = self._client._bgthread, None
+            if bgthread is not None:
+                bgthread.stop()
             # pylint: enable=W0212
             self._client.close()
 
