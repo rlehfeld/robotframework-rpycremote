@@ -340,6 +340,10 @@ class RPyCRobotRemoteServer:
                 _robotapilogconsole.set_thread_specific_instance(value)
 
             def _rpyc_setattr(self, name: str, value):
+                # can be called also on the class itself
+                if inspect.isclass(self):
+                    raise AttributeError("access denied")
+
                 if name in (
                         'stdin',
                         'stdout',
@@ -348,7 +352,8 @@ class RPyCRobotRemoteServer:
                         'robotapilogconsole',
                 ):
                     return setattr(self, name, value)
-                return super()._rpyc_setattr(name, value)
+
+                raise AttributeError("access denied")
 
         self._port_file = (
             port_file if (
