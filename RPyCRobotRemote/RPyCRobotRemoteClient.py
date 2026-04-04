@@ -134,6 +134,7 @@ class RPyCRobotRemoteClient:
     Implements Remote Client Interface for Robot Framework based on RPyC
     """
     __slot__ = ('ROBOT_LIBRARY_LISTENER', )
+    __connected_instances = []
 
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
 
@@ -223,15 +224,19 @@ class RPyCRobotRemoteClient:
             ipv6=ipv6,
             keepalive=True,
         )
+        self.__connected_instances.append(self)
 
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
         self._client._is_redirected = LoggerApi is not None
         self._client.sync_request = redirect_output(self._client.sync_request)
-
-        register_atexit(self._disconnect)
-
     # pylint: enable=R0913
+
+    @classmethod
+    @not_keyword
+    def _disconnect_instances(cls):
+        for instance in cls.__connected_instances.copy():
+            instance._disconnect()
 
     def __del__(self, /):
         self._disconnect()
@@ -274,6 +279,10 @@ class RPyCRobotRemoteClient:
     @not_keyword
     def _disconnect(self, /):
         # pylint: disable=W0212
+        try:
+            self.__connected_instances.remove(self)
+        except ValueError:
+            pass
         if self._client._is_connected:
             self._client._is_connected = False
             bgthread, self._client._bgthread = self._client._bgthread, None
@@ -300,3 +309,6 @@ class RPyCRobotRemoteClient:
                     )
                 )
         return self._keywords_cache
+
+
+register_atexit(RPyCRobotRemoteClient._disconnect_instances)
