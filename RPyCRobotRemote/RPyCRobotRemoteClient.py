@@ -236,7 +236,9 @@ class RPyCRobotRemoteClient:
     @not_keyword
     def _disconnect_instances(cls):
         for instance in cls.__connected_instances.copy():
+            # pylint: disable=W0212
             instance._disconnect()
+            # pylint: enable=W0212
 
     def __del__(self, /):
         self._disconnect()
@@ -311,4 +313,6 @@ class RPyCRobotRemoteClient:
         return self._keywords_cache
 
 
+# pylint: disable=W0212
 register_atexit(RPyCRobotRemoteClient._disconnect_instances)
+# pylint: enable=W0212
