@@ -61,3 +61,5 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1.13
       with:
         verbose: true
+    - name: Purge old Banner images
+      uses: kevincobain2000/action-camo-purge@v1

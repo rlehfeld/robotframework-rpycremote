@@ -47,10 +47,10 @@ Usage
    :target:            https://pypi.org/project/robotframework-rpycremote/#files
    :alt:               Python Versions
 
-.. |Tests| image::     ../../actions/workflows/pipeline.yml/badge.svg
-   :target:            ../../actions/workflows/pipeline.yml
+.. |Tests| image::     https://github.com/rlehfeld/robotframework-rpycremote/actions/workflows/pipeline.yml/badge.svg
+   :target:            https://github.com/rlehfeld/robotframework-rpycremote/actions/workflows/pipeline.yml
    :alt:               Build Status
 
 .. |License| image::   https://img.shields.io/pypi/l/robotframework-rpycremote.svg?style=flat
-   :target:            LICENSE.txt
+   :target:            https://github.com/rlehfeld/robotframework-rpycremote/blob/main/LICENSE.txt
    :alt:               License: MIT
