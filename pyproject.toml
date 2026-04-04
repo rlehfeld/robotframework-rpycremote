@@ -25,8 +25,7 @@ classifiers = [
 ]
 dependencies = [
   'robotframework>=6.1',
-  #'rpyc-ng>=7.0.0',
-  'rpyc>=6.0.2',
+  'rpyc-ng',
 ]
 dynamic = ['version', 'readme']
 
