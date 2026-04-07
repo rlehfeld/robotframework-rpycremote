@@ -103,12 +103,18 @@ class Service(rpyc.Service):
         """called when the connection is established"""
         super().on_connect(conn)
         self._install(conn, conn.root)
+
+        def ignore_eoferror_exception(exc):
+            if not isinstance(exc, EOFError):
+                raise exc from None
+
         # pylint: disable=W0212
         conn._is_connected = True
         conn._is_redirected = False
         conn._bgthread = rpyc.BgServingThread(
             conn,
-            active=not conn._is_redirected
+            callback=ignore_eoferror_exception,
+            active=not conn._is_redirected,
         )
         # pylint: enable=W0212
 
