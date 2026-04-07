@@ -50,4 +50,5 @@ Test Exception
     Run Keyword And Expect Error    *    RPyCTest.Raise Error
 
 Test Stop Server
+    [Tags]    STOP_SERVER
     RPyCTest.Stop Remote Server

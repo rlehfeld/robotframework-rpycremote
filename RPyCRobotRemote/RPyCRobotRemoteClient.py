@@ -272,6 +272,7 @@ class RPyCRobotRemoteClient:
 
     def stop_remote_server(self, /):
         """Stop remote server."""
+        self._stop_bg_thread()
         try:
             self._client.root.stop_remote_server()
         except EOFError:
@@ -279,18 +280,24 @@ class RPyCRobotRemoteClient:
         self._disconnect()
 
     @not_keyword
-    def _disconnect(self, /):
+    def _stop_bg_thread(self, /):
         # pylint: disable=W0212
+        bgthread, self._client._bgthread = self._client._bgthread, None
+        # pylint: enable=W0212
+        if bgthread is not None:
+            bgthread.stop()
+
+    @not_keyword
+    def _disconnect(self, /):
         try:
             self.__connected_instances.remove(self)
         except ValueError:
             pass
+        # pylint: disable=W0212
         if self._client._is_connected:
             self._client._is_connected = False
-            bgthread, self._client._bgthread = self._client._bgthread, None
-            if bgthread is not None:
-                bgthread.stop()
             # pylint: enable=W0212
+            self._stop_bg_thread()
             self._client.close()
 
     @not_keyword
