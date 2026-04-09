@@ -13,7 +13,7 @@ from robot.api import logger as robotapilogger
 from robot.libraries.DateTime import convert_time
 import rpyc
 # pylint: disable=E0611
-from rpyc.lib.compat import execute, Lock
+from rpyc.lib.compat import execute
 from rpyc.lib import spawn
 # pylint: enable=E0611
 from rpyc.utils.helpers import classpartial
@@ -45,7 +45,7 @@ class ThreadedServer(_RPyCServer):
     Parameters: see :class:`rpyc.utils.server.Server`
     """
     def __init__(self, *args, **kwargs):
-        self._cond = threading.Condition(Lock())
+        self._cond = threading.Condition(threading.Lock())
         self._workers = []
         self._terminated = []
         super().__init__(*args, **kwargs)
