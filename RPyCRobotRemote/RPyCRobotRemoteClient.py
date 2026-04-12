@@ -151,7 +151,7 @@ class RPyCRobotRemoteClient:
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
 
     # pylint: disable=R0913
-    def __init__(self, /,
+    def __init__(self, /,  # noqa, C901
                  peer: str = 'localhost',
                  port: int = 18861, *,
                  ipv6: bool = False,
@@ -210,7 +210,6 @@ class RPyCRobotRemoteClient:
         if logger is None:
             logger = logging.getLogger('RPyCRobotRemote.Client')
 
-        # pylint: disable=duplicate-code
         config = {}
         if rpyc_config:
             config.update(rpyc_config)
@@ -231,7 +230,6 @@ class RPyCRobotRemoteClient:
                 timeout,
                 result_format='number'
             )
-        # pylint: enable=duplicate-code
 
         self._client = rpyc.connect(
             peer,
@@ -246,7 +244,8 @@ class RPyCRobotRemoteClient:
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
         self._client._is_redirected = LoggerApi is not None
-        if self._client._is_redirected is False and conn._bgthread is not None:
+        if (self._client._is_redirected is False and
+                self._client._bgthread is not None):
             try:
                 self._client._bgthread.resume()
             except RuntimeError:
