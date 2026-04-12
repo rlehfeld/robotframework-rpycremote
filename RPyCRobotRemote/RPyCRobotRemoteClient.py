@@ -37,7 +37,10 @@ def redirect(conn):
         # pylint: disable=W0212
         if not alreadyredirected and conn._is_connected:
             if conn._bgthread is not None:
-                conn._bgthread.pause()
+                try:
+                    conn._bgthread.pause()
+                except RuntimeError:
+                    pass
 
             # pylint: enable=W0212
             orig_stdout = conn.root.stdout
@@ -62,7 +65,10 @@ def redirect(conn):
                 # pylint: disable=W0212
                 conn._is_redirected = False
                 if conn._bgthread is not None:
-                    conn._bgthread.resume()
+                    try:
+                        conn._bgthread.resume()
+                    except RuntimeError:
+                        pass
                 # pylint: enable=W0212
         else:
             yield
@@ -110,11 +116,11 @@ class Service(rpyc.Service):
 
         # pylint: disable=W0212
         conn._is_connected = True
-        conn._is_redirected = False
+        conn._is_redirected = True
         conn._bgthread = rpyc.BgServingThread(
             conn,
             callback=ignore_eoferror_exception,
-            active=not conn._is_redirected,
+            active=False
         )
         # pylint: enable=W0212
 
@@ -191,6 +197,11 @@ class RPyCRobotRemoteClient:
                     # pylint: disable=W0212
                     if instance._client._is_connected:
                         instance._client._is_redirected = False
+                        if instance._client._bgthread is not None:
+                            try:
+                                instance._client._bgthread.resume()
+                            except RuntimeError:
+                                pass
                     # pylint: enable=W0212
                     LOGGER.unregister_logger(self)
 
@@ -235,6 +246,11 @@ class RPyCRobotRemoteClient:
         # automatic redirect stdout + stderr from remote during
         # during handling of sync_request
         self._client._is_redirected = LoggerApi is not None
+        if self._client._is_redirected is False and conn._bgthread is not None:
+            try:
+                self._client._bgthread.resume()
+            except RuntimeError:
+                pass
         self._client.sync_request = redirect_output(self._client.sync_request)
     # pylint: enable=R0913
 
