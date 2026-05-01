@@ -426,7 +426,8 @@ class RPyCRobotRemoteServer:
             self._server.start()
 
         finally:
-            if self._port_file and not isinstance(self._port_file, io.TextIOBase):
+            if self._port_file and not isinstance(
+                    self._port_file, io.TextIOBase):
                 self._port_file.unlink()
 
     @property
