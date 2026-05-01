@@ -414,7 +414,7 @@ class RPyCRobotRemoteServer:
         """start serving requests"""
         if self._port_file:
             # enable listening and fetch final port
-            self._server._listen()
+            self._server._listen()  # pylint: disable=W0212
 
             if isinstance(self._port_file, io.TextIOBase):
                 print(self.server_port, file=self._port_file)
