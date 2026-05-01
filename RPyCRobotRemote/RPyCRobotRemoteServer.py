@@ -413,15 +413,21 @@ class RPyCRobotRemoteServer:
     def serve(self):
         """start serving requests"""
         if self._port_file:
+            # enable listening and fetch final port
+            self._server._listen()
+
             if isinstance(self._port_file, io.TextIOBase):
                 print(self.server_port, file=self._port_file)
             else:
                 with self._port_file.open('w', encoding='utf-8') as f:
                     print(self.server_port, file=f)
-        self._server.start()
 
-        if self._port_file and not isinstance(self._port_file, io.TextIOBase):
-            self._port_file.unlink()
+        try:
+            self._server.start()
+
+        finally:
+            if self._port_file and not isinstance(self._port_file, io.TextIOBase):
+                self._port_file.unlink()
 
     @property
     def server_address(self):
