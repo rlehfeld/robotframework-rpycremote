@@ -262,7 +262,9 @@ class RPyCRobotRemoteClient:
             # pylint: enable=W0212
 
     def __del__(self, /):
-        self._disconnect()
+        unset = object()
+        if getattr(self, '_client', unset) != unset:
+            self._disconnect()
 
     @property
     def __doc__(self, /):
